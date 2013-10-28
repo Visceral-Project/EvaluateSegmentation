@@ -3,8 +3,8 @@ EvaluateSegmentation Tool, VISCERAL http://www.visceral.eu
 VISCERAL received funding from EU FP7, contract 318068   
 Developed by Abdel Aziz Taha (taha@ifs.tuwien.ac.at)   
 24.02.2013  
-Copyright 2013 Vienna University of Technology  
-Institute of Software Technology and Interactive Systems  
+Copyright 2013 Vienna University of Technology I
+nstitute of Software Technology and Interactive Systems  
 
 Licensed under the Apache License, Version 2.0 (the "License");  
 you may not use this file except in compliance with the License.  
@@ -20,10 +20,7 @@ limitations under the License.
 ********************************************************************************  
 
 1 Description  
-EvaluateSegmentation is a tool that compares two volumes (a test segmentation  
-and a ground truth segmentation) using 22 different metrics that were selected as a  
-result of a comprehensive research into the metrics used in the medical volume  
-segmentations. EvaluateSegmentation provides the following measures:  
+EvaluateSegmentation is a tool that compares two volumes (a test segmentation and a ground truth segmentation) using 22 different metrics that were selected as a result of a comprehensive research into the metrics used in the medical volume segmentations. EvaluateSegmentation provides the following measures:  
  
 Similarity  
 1.	Dice Coefficient  
@@ -34,7 +31,8 @@ Similarity
 6.	Adjusted Rand Index  
 7.	Interclass Correlation  
 8.	Volumetric Similarity Coefficient  
-9.	Mutual Information  
+9.	Mutual Information
+
 Distance   
 10.	Hausdorff Distance  
 11.	Average Distance  
@@ -42,7 +40,8 @@ Distance
 13.	Variation of Information  
 14.	Global Consistency Error  
 15.	Coefficient of Variation  
-16.	Probabilistic Distance  
+16.	Probabilistic Distance
+
 Classic measures  
 17.	Sensitivity (Recall, true positive rate)  
 18.	Specificity (true negative rate)  
@@ -66,19 +65,20 @@ corresponding voxel belongs to the label.
 
 USAGE: 
 
-EvaluateSegmentation truthPath segmentPath [-thd threshold] [-xml xmlpath]  
-[-use all|DICE,JACRD, ....]
+EvaluateSegmentation truthPath segmentPath [-thd threshold] [-xml xmlpath] [-use all|DICE,JACRD, ....]
 
 where:  
-truthPath:	path (or URL) to truth image. URLs should be enclosed with quotations  
-segmentPath:	path (or URL) to image being evaluated. URLs should be enclosed with quotations  
--th threshold:	before evaluation convert fuzzy images to binary using the given threshold  
--xml xmlpath:	path to xml file where results should be saved  
+truthPath:	path (or URL) to truth image. URLs should be enclosed with quotations.  
+segmentPath:	path (or URL) to image being evaluated. URLs should be enclosed with quotations.  
+-th threshold:	before evaluation convert fuzzy images to binary using the given threshold.  
+-xml xmlpath:	path to xml file where results should be saved.  
 -help:		more information  
 -use metriclist:this option can be used to specify which metrics should be used. 
 
 Metriclist consists of the codes of the desired metrics separated by commas. For those metrics that accept parameters, it is possible to pass these parameters  by writing them between two @ characters, e.g. –use MUTINF,FMEASR@0.5@. This option tells the tool to calculate the mutual information and the F-Measure at beta=0.5.
+
 Possible codes for metriclist are:  
+
 		all: calculate all available metrics (default)  
 		DICE: calculate Dice Coefficient  
 		JACRD: calculate Jaccard Coefficient  
@@ -93,9 +93,7 @@ Possible codes for metriclist are:
 		FALLOUT: calculate Fallout (false positive rate)  
 		COEFVAR: calculate Coefficient of Variation  
 		AVGDIST: calculate Average Distance  
-		HDRFDST: calculate Hausdorff Distance HDRFDST@0.95@ means use  
-		0.95 quantile to avoid outliers. Default is quantile of 1 which   
-		means exact Hausdorff distance  
+		HDRFDST: calculate Hausdorff Distance HDRFDST@0.95@ means use 0.95 quantile to avoid outliers. Default is quantile of 1 which  		means exact Hausdorff distance  
 		VARINFO: calculate Variation of Information  
 		PROBDST: calculate Probabilistic Distance  
 		MAHLNBS: calculate Mahanabolis Distance  
