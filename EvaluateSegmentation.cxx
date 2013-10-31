@@ -38,7 +38,7 @@
 #include <time.h>
 #include <sys/timeb.h>
 #include "Global.h"
-#include "metric_constants.h"
+#include "Metric_constants.h"
 #include "Outputter.h"
 #include "Segmentation.h" 
 #include "Localization.h" 

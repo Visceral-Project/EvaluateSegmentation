@@ -40,7 +40,7 @@ typedef struct Landmark{
 void parseLocalizationFile(string l_file, vector<Landmark> *landmarks){
 	ifstream i_stream;
 	std::string line, token;
-	i_stream.open(l_file);
+	i_stream.open(l_file.c_str()); 
 	int numOfLine=0;
   
 	if (i_stream.is_open()) {
@@ -150,12 +150,12 @@ void compareLandmarks(Landmark* truth, Landmark* test, itk::DOMNode::Pointer xml
 	if(truth!=NULL){
 		double value =  sqrt((double)((truth->x-test->x)*(truth->x-test->x) + (truth->y-test->y)*(truth->y-test->y) + (truth->z-test->z)*(truth->z-test->z)));
 		char val [50];
-		sprintf_s(val, "%.6f", value);
+		sprintf(val, "%.6f", value);
 		std::cout << val << "\t= " << test->Id << std::endl;
 		char s_truth[100];
-		sprintf_s(s_truth, "(%.0f,%.0f,%.0f)", truth->x, truth->y, truth->z);
+		sprintf(s_truth, "(%.0f,%.0f,%.0f)", truth->x, truth->y, truth->z);
 		char s_test[100];
-		sprintf_s(s_test, "(%.0f,%.0f,%.0f)", test->x, test->y, test->z);
+		sprintf(s_test, "(%.0f,%.0f,%.0f)", test->x, test->y, test->z);
 
 		if(xmlObject != (itk::DOMNode::Pointer)NULL){
 			itk::DOMNode * landmarksnode= xmlObject->GetChild("Landmarks");
@@ -175,7 +175,7 @@ void compareLandmarks(Landmark* truth, Landmark* test, itk::DOMNode::Pointer xml
 	else{
 		std::cout << "????????" << "\t= " << test->Id << " (No ground truth for this Landmark!)" << std::endl;
 		char s_test[100];
-		sprintf_s(s_test, "(%.0f,%.0f,%.0f)", test->x, test->y, test->z);
+		sprintf(s_test, "(%.0f,%.0f,%.0f)", test->x, test->y, test->z);
 		if(xmlObject != (itk::DOMNode::Pointer)NULL){
 			itk::DOMNode * landmarksnode= xmlObject->GetChild("Landmarks");
 			if(landmarksnode != NULL){

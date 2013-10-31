@@ -33,7 +33,7 @@
 #include <itkDOMNodeXMLReader.h>
 #include <itkDOMNodeXMLWriter.h>
 #include "itkFileTools.h"
-#include "metric_constants.h"
+#include "Metric_constants.h"
 
 using namespace std;
 
@@ -71,15 +71,15 @@ itk::DOMNode::Pointer  OpenSegmentationResultXML(const char* targtfile, const ch
 		char val [50];
 
 		AddNodeWithAttributeIfNotExists(dOMObject, "fixed-image", "filename", fixedImage);
-		sprintf_s(val, "%d", num_pt_f-num_intersec);
+		sprintf(val, "%d", num_pt_f-num_intersec);
 		AddNodeWithAttributeIfNotExists(dOMObject, "fixed-image", "nonzeropoints", val);
-		sprintf_s(val, "%d", num_intersec);
+		sprintf(val, "%d", num_intersec);
 		AddNodeWithAttributeIfNotExists(dOMObject, "fixed-image", "intersection", val);
 
 		AddNodeWithAttributeIfNotExists(dOMObject, "moving-image", "filename", movingImage);
-		sprintf_s(val, "%d", num_pt_m-num_intersec);
+		sprintf(val, "%d", num_pt_m-num_intersec);
 		AddNodeWithAttributeIfNotExists(dOMObject, "moving-image", "nonzeropoints", val);
-		sprintf_s(val, "%d", num_intersec);
+		sprintf(val, "%d", num_intersec);
 		AddNodeWithAttributeIfNotExists(dOMObject, "moving-image", "intersection", val);
 
 
@@ -103,7 +103,7 @@ void SaveXmlObject(itk::DOMNode::Pointer xmlObject, const char* targtfile){
 
 void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject){
 	char val [50];
-	sprintf_s(val, "%.6f", value);
+	sprintf(val, "%.6f", value);
 	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << " "<< std::endl;
 	if(xmlObject != (itk::DOMNode::Pointer)NULL){
 		itk::DOMNode* metricnode = AddNodeWithAttributeIfNotExists((itk::DOMNode*)xmlObject, "metrics", NULL, NULL);
@@ -119,7 +119,7 @@ void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject){
 
 void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::Pointer xmlObject){
 	char val [50];
-	sprintf_s(val, "%.6f", value);
+	sprintf(val, "%.6f", value);
 	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << " "<< std::endl;
 	if(xmlObject != (itk::DOMNode::Pointer)NULL){
 		itk::DOMNode* metricnode = AddNodeWithAttributeIfNotExists((itk::DOMNode*)xmlObject, "metrics", NULL, NULL);
@@ -129,7 +129,7 @@ void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::P
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "type",  type);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "value", val);
 
-		sprintf_s(val, "%.0f", executiontime);
+		sprintf(val, "%.0f", executiontime);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "executiontime", val);
 	}
 

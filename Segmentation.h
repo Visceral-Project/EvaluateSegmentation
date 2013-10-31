@@ -44,7 +44,7 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkImageRegionConstIterator.h"
 #include "itkTextOutput.h"
-#include "metric_constants.h"
+#include "Metric_constants.h"
 #include "VoxelPreprocessor.h"
 #include "ContingencyTable.h"
 #include "HausdorffDistanceMetric.h"
@@ -61,7 +61,7 @@
 #include "VariationOfInformationMetric.h"
 #include "MutualInformationMetric.h"
 #include "ClassicMeasures.h"
-#include "imagedownloader.h" 
+#include "Imagedownloader.h" 
 
 #ifdef _DEBUG
 #include "HausdorffDistanceMetric_V1.h"
