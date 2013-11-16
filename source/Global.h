@@ -27,12 +27,66 @@
 
 #ifndef _GLOBAL
 #define _GLOBAL
+#include <vector>
+#include "itkImage.h"
 
 // Please let the switch _DEBUG undefined to be sure that the code is compilable and correctly works
 // This is because there may be files and functions that are not available  
 // such as classes for testing and code under development.   
 #undef _DEBUG
 
+#define PI 3.14159265
 
-static const double PI = 3.141592;
+static const int PIXEL_VALUE_RANGE_MIN=0;
+static const int PIXEL_VALUE_RANGE_MAX=255;
+
+//#define DATATYPE_UNSIGNED_INT
+//#define DATATYPE_INT
+//#define DATATYPE_FLOAT
+//#define DATATYPE_DOUBLE
+//#define DATATYPE_UNSIGNED_SHORT
+#define DATATYPE_UNSIGNED_CHAR
+//#define DATATYPE_BOOLEAN
+
+
+#ifdef DATATYPE_UNSIGNED_INT
+   typedef unsigned int  pixeltype;
+   typedef itk::Image< pixeltype, 3> ImageType;
+#endif
+
+#ifdef DATATYPE_UNSIGNED_SHORT
+   typedef unsigned short  pixeltype;
+   typedef itk::Image< pixeltype, 3> ImageType;
+#endif
+
+#ifdef DATATYPE_INT
+   typedef int  pixeltype;
+   typedef itk::Image< pixeltype, 3> ImageType;
+#endif
+
+#ifdef DATATYPE_FLOAT
+ typedef float  pixeltype;
+ typedef itk::Image< pixeltype, 3> ImageType;
+#endif
+
+#ifdef DATATYPE_DOUBLE
+   typedef double  pixeltype;
+   typedef itk::Image< pixeltype, 3> ImageType;
+#endif
+
+#ifdef DATATYPE_UNSIGNED_CHAR
+   typedef unsigned char  pixeltype;
+   typedef itk::Image< pixeltype, 3> ImageType;
+#endif
+
+
+#ifdef DATATYPE_BOOLEAN
+   typedef bool  pixeltype;
+   typedef itk::Image< pixeltype, 3> ImageType;
+#endif
+
+static pixeltype *values_f;
+static pixeltype *values_m;
+
+
 #endif

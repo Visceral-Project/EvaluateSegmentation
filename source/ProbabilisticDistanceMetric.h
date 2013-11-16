@@ -31,7 +31,6 @@
 
 class ProbabilisticDistanceMetric
 {
-	typedef itk::Image<double, 3> ImageType;	
 	typedef itk::ImageRegionConstIterator<ImageType> FixedIteratorType;
 	typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
 
@@ -52,8 +51,6 @@ public:
 	}
 
 	double CalcJProbabilisticDistance(){ //[{00121}]
-		double *values_f = voxelprocesser->values_f;
-		double *values_m = voxelprocesser->values_m;
 		double mean_f = voxelprocesser->mean_f;
 		double mean_m = voxelprocesser->mean_m;
 		int numberElements = std::min(voxelprocesser->numberElements_f, voxelprocesser->numberElements_m);
@@ -63,8 +60,8 @@ public:
 
 		for (int i = 0; i < numberElements; i++)
 		{
-			double f =voxelprocesser->values_f[i];
-			double m =voxelprocesser->values_m[i];
+			double f =values_f[i];
+			double m =values_m[i];
 			probability_diff += abs(f - m);
 			probability_joint += f * m;
 		}

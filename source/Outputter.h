@@ -35,6 +35,8 @@
 #include "itkFileTools.h"
 #include "Metric_constants.h"
 
+
+
 using namespace std;
 
 itk::DOMNode*  AddNodeWithAttributeIfNotExists(itk::DOMNode* parentNode, const char *nodename, const char * attributename, const char* attributeValue){

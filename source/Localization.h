@@ -28,6 +28,7 @@
 //
 */
 
+
 using namespace std;
 
 typedef struct Landmark{

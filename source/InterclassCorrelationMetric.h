@@ -31,7 +31,6 @@
 
 class InterclassCorrelationMetric
 {
-	typedef itk::Image<double, 3> ImageType;	
 	typedef itk::ImageRegionConstIterator<ImageType> FixedIteratorType;
 	typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
 
@@ -52,8 +51,6 @@ public:
 	}
 
 	double CalcInterClassCorrelationCoeff(){
-		double *values_f = voxelprocesser->values_f;
-		double *values_m = voxelprocesser->values_m;
 		double mean_f = voxelprocesser->mean_f;
 		double mean_m = voxelprocesser->mean_m;
 		int numberElements = std::min(voxelprocesser->numberElements_f, voxelprocesser->numberElements_m);

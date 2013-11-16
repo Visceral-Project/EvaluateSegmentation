@@ -65,7 +65,7 @@ int max_z;
 		bool emp;
 	} Cell;
 
-	typedef itk::Image<double, 3> ImageType;
+
 	typedef itk::Vector<double, 3> V2;
 	typedef itk::ImageRegionConstIterator<ImageType> IteratorType;
 	

@@ -35,7 +35,7 @@
 
 class ContingencyTable
 {
-	typedef itk::Image<double, 3> ImageType;
+
 
 private:
 	VoxelPreprocessor *voxelprocesser;
@@ -43,8 +43,6 @@ private:
 public: 
 	int numberElements_f;
     int numberElements_m;
-	double *values_f;
-	double *values_m;
 	double tn; //TN
 	double fn; //FN
 	double fp; //FP
@@ -64,8 +62,6 @@ public:
 		this->voxelprocesser= voxelprocesser;
 		double mean_f= voxelprocesser->mean_f;
 		double mean_m= voxelprocesser->mean_m;
-		values_f = voxelprocesser->values_f;
-		values_m= voxelprocesser->values_m;
 		numberElements_f = voxelprocesser->numberElements_f;
 		numberElements_m = voxelprocesser->numberElements_m;
 
@@ -81,14 +77,15 @@ public:
 		d = 0;
 		for (int i = 0; i < numberElements_f && i < numberElements_m; i++)
 		{
-				double x1 =values_f[i];
+				double x1 =((double)values_f[i])/((double)PIXEL_VALUE_RANGE_MAX);
 				double y1 =1-x1;
-				double x2 = values_m[i];
+				double x2 = ((double)values_m[i])/((double)PIXEL_VALUE_RANGE_MAX);
 				double y2 =1-x2;
 				tn += std::min(y1,y2);
 				fn += x1>x2?x1-x2:0;
 				fp += x2>x1?x2-x1:0;
 				tp += std::min(x1,x2);
+				
 		}
 		//-------------------
 		n = std::min(numberElements_f, numberElements_m);

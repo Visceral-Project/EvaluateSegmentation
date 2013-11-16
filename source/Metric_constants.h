@@ -45,7 +45,7 @@ MetricInfo* metricInfo;
 enum MetricId  {DICE,    JACRD, AUC, KAPPA, RNDIND, ADJRIND, ICCORR, VOLSMTY, MUTINF, 
                  MAHLNBS, AVGDIST, HDRFDST, VARINFO, GCOERR, PROBDST,       
                  SNSVTY, SPCFTY, PRCISON,  FMEASR, ACURCY, FALLOUT, MEANTOMEAN
-				 ,HDRFDSTITK, HDRFDSTNAIVE
+				 ,HDRFDSTITK, HDRFDSTNAIVE, TEST
 				 , LEN
 
 };
@@ -63,7 +63,7 @@ void initMetricInfo(){
   info = &metricInfo[JACRD];
   info->metrId = "JACRD";
   info->metrSymb="JACRD";
-  info->metrInfo ="Jaccard Coefficient"; //tested against BRATS impl + by compairing with DIC (DICE=2*JACCARD/(JACC + 1)
+  info->metrInfo ="Jaccard Coefficient"; //tested against Covalic impl + by compairing with DIC (DICE=2*JACCARD/(JACC + 1)
   info->help ="Jaccard Coefficient";
   info->similarity =true;
   info->testmetric =false;
@@ -71,7 +71,7 @@ void initMetricInfo(){
   info = &metricInfo[SNSVTY];
   info->metrId = "SNSVTY";
   info->metrSymb="SNSVTY";
-  info->metrInfo ="Sensitivity (Recall, true positive rate)"; //tested against BRATS + by comparing fmeasure with precision and recall
+  info->metrInfo ="Sensitivity (Recall, true positive rate)"; //tested against Covalic + by comparing fmeasure with precision and recall
   info->help ="Sensitivity (Recall, true positive rate)";
   info->similarity =true;
   info->testmetric =false;
@@ -79,7 +79,7 @@ void initMetricInfo(){
   info = &metricInfo[SPCFTY];
   info->metrId = "SPCFTY";
   info->metrSymb="SPCFTY";
-  info->metrInfo ="Specificity (true negative rate)"; //tested against BRATS implementation
+  info->metrInfo ="Specificity (true negative rate)"; //tested against Covalic implementation
   info->help ="Specificity (true negative rate)";
   info->similarity =true;
   info->testmetric =false;
@@ -244,6 +244,14 @@ void initMetricInfo(){
   info->metrInfo ="MEANTOMEAN";
   info->help ="MEANTOMEAN";
   info->similarity =false;
+  info->testmetric =true;
+
+  info = &metricInfo[TEST];
+  info->metrId = "TEST";
+  info->metrSymb="TEST";
+  info->metrInfo ="TEST";
+  info->help ="TEST";
+  info->similarity =true;
   info->testmetric =true;
 
 }

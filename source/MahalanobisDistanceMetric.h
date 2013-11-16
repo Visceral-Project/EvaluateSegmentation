@@ -34,7 +34,7 @@
 
 class MahalanobisDistanceMetric
 {
-	typedef itk::Image<double, 3> ImageType;
+
 	typedef itk::ImageRegionConstIterator<ImageType> IteratorType;
 	typedef itk::Vector<double, 3> VectorType;
 	typedef itk::Matrix<double, 3, 3> MatrixType;

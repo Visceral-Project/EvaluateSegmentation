@@ -29,12 +29,13 @@
 #ifndef _VOXELPROCESSOR
 #define _VOXELPROCESSOR
 #include "itkImage.h"
+#include "ImageStatistics.h"
+
 class VoxelPreprocessor
 {
-	typedef itk::Image<double, 3> ImageType;
 private:
 	bool empty_f;
-	bool empty_m;
+	bool empty_m;	
 public: 
 	int numberElements_f;
 	int numberElements_m;
@@ -43,75 +44,47 @@ public:
 	int num_intersection;
 	double mean_f;
 	double mean_m;
-	double *values_f ;
-	double *values_m ;
 	~VoxelPreprocessor(){
 
 	}
-	VoxelPreprocessor(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold){
+	VoxelPreprocessor(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold, ImageStatistics *imagestatistics){
 		typedef itk::ImageRegionConstIterator<ImageType> FixedIteratorType;
 		typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
+		
+		this->numberElements_f = imagestatistics->numberElements_f;
+		this->numberElements_m = imagestatistics->numberElements_m;
+		this->num_nonzero_points_f = imagestatistics->num_nonzero_points_f;
+		this->num_nonzero_points_m = imagestatistics->num_nonzero_points_m;
+		this->num_intersection = imagestatistics->num_intersection;
 
 		FixedIteratorType fixedIt(fixedImage, fixedImage->GetRequestedRegion());
+
 		MovingIteratorType movingIt(movingImage, movingImage->GetRequestedRegion());
-
-		numberElements_f = 0;
-		num_nonzero_points_f=0;
-		fixedIt.GoToBegin();
-		while (!fixedIt.IsAtEnd()){
-			numberElements_f++;
-			if(fixedIt.Get()!=0){
-				num_nonzero_points_f++;
-			}
-			++fixedIt;
-		}
-		numberElements_m = 0;
-		num_nonzero_points_m=0;
-		movingIt.GoToBegin();
-		while (!movingIt.IsAtEnd()){
-			numberElements_m++;
-		   if(movingIt.Get()!=0){
-				num_nonzero_points_m++;
-			}
-			++movingIt;
-		}
-
-		num_intersection=0;
-		movingIt.GoToBegin();
-		fixedIt.GoToBegin();
-		while (!movingIt.IsAtEnd() && !fixedIt.IsAtEnd()){
-		   if(movingIt.Get()!=0 && fixedIt.Get()!=0){
-				num_intersection++;
-			}
-			++movingIt;
-			++fixedIt;
-		}
-
-
-
-		values_f = new double[numberElements_f];
-		values_m = new double[numberElements_m];
 
 		int ind=0;
 		double sum_f = 0;
 		empty_f=true;
         fixedIt.GoToBegin();
 		while (!fixedIt.IsAtEnd()){
+			  //std::cout << "i:" << ind << std::endl;
 			if(fuzzy){
 				values_f[ind] = fixedIt.Value();
-				if(values_f[ind] !=0){
-					empty_f=false;
-				} 
+				if(values_f[ind]>PIXEL_VALUE_RANGE_MAX)
+					values_f[ind] = PIXEL_VALUE_RANGE_MAX;
+				if(values_f[ind]<PIXEL_VALUE_RANGE_MIN)
+					values_f[ind] = PIXEL_VALUE_RANGE_MIN;
 
-				if(values_f[ind]>1)
-					values_f[ind] = 1;
-				if(values_f[ind]<0)
-					values_f[ind] = 0;
 			}
 			else{
-				values_f[ind] =  fixedIt.Value()<threshold?0:1;
+				values_f[ind] =  fixedIt.Value()<(threshold*PIXEL_VALUE_RANGE_MAX)?PIXEL_VALUE_RANGE_MIN:PIXEL_VALUE_RANGE_MAX;
+				
 			}
-			sum_f += values_f[ind];
+
+			if(values_f[ind] !=0){
+					empty_f=false;
+			} 
+
+			sum_f += ((double)values_f[ind])/((double)PIXEL_VALUE_RANGE_MAX);
 			ind++;
 			++fixedIt;
 		}
@@ -123,30 +96,29 @@ public:
 	    while (!movingIt.IsAtEnd()){
 			if(fuzzy){
 				values_m[ind] = movingIt.Value();
-				if(values_m[ind] !=0){
-					empty_m=false;
-				} 
-
-				if(values_m[ind]>1)
-					values_m[ind] = 1;
-				if(values_m[ind]<0)
-					values_m[ind] = 0;
-
+				if(values_m[ind]>PIXEL_VALUE_RANGE_MAX)
+					values_m[ind] = PIXEL_VALUE_RANGE_MAX;
+				if(values_m[ind]<PIXEL_VALUE_RANGE_MIN)
+					values_m[ind] = PIXEL_VALUE_RANGE_MIN;
+	
 			}
 			else{
-				values_m[ind] = movingIt.Value()<threshold?0:1;
+				values_m[ind] = movingIt.Value()<(threshold*PIXEL_VALUE_RANGE_MAX)?PIXEL_VALUE_RANGE_MIN:PIXEL_VALUE_RANGE_MAX;
 			}
-			sum_m += values_m[ind];
+			if(values_m[ind] !=0){
+				empty_m=false;
+			} 
+
+
+			sum_m += ((double)values_m[ind])/((double)PIXEL_VALUE_RANGE_MAX);
 			ind++;
 			++movingIt;
 		}
 
 		////-----------------
-
 		mean_f = sum_f/numberElements_f;
 		mean_m = sum_m/numberElements_m;
 	}
-
 	int GetFixedImageVoxelCount(){
 		return numberElements_f;
 	}

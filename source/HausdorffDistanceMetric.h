@@ -30,6 +30,7 @@
 #include "itkImage.h"
 #include <itkVector.h>
 
+
 class HausdorffDistanceMetric
 {
 
@@ -40,7 +41,7 @@ typedef struct VoxelInfo{
 	double value;
 } VoxelInfo;
 
-	typedef itk::Image<double, 3> ImageType;
+	
 
 		typedef itk::Vector<double, 3> VectorType;
 		typedef itk::ImageRegionConstIterator<ImageType> IteratorType;

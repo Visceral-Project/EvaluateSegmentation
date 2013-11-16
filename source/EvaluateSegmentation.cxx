@@ -48,7 +48,7 @@ using namespace std;
 
 void usage(int argc, char** argv){
 	std::cout << "\nUSAGE:\n\n1) For volume segmentation:\n\n"  
-	<<argv[0]<< " truthPath segmentPath [-thd threshold] [-xml xmlpath] [-use all|fast|DICE,JACRD,....]" << std::endl;
+		<<argv[0]<< " truthPath segmentPath [-thd threshold] [-xml xmlpath] [-use all|fast|DICE,JACRD,....]" << std::endl;
 	std::cout << "\nwhere:" << std::endl;
 	std::cout << "truthPath	=path (or URL) to truth image. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "segmentPath	=path (or URL) to image beeing evaluated. URLs should be enclosed with quotations" << std::endl;
@@ -59,13 +59,15 @@ void usage(int argc, char** argv){
 	std::cout << "	all	:use all available metrics (default)" << std::endl;
 	for(int i=0 ; i< METRIC_COUNT ; i++){
 		if(!metricInfo[i].testmetric){
-		   std::cout << "	" << metricInfo[i].metrId << "	:" << metricInfo[i].help<< std::endl;
+			std::cout << "	" << metricInfo[i].metrId << "	:" << metricInfo[i].help<< std::endl;
 		}
 	}
+	std::cout << "\n-default or -def =reads default options from a file default.txt in the current folder. All the options above except image filenames can be used as defaults. Default options are overridden by options given in the command line." << std::endl;
+
 	std::cout << "\nExample:\n"<< argv[0]<< " truth.nii segment.nii -use RNDIND,HDRFDST@0.96@,FMEASR@0.5@ -xml result.xml" << std::endl;	
 
 	std::cout << "\n\n2)For Localization:\n\n"  
-	<<argv[0]<< " -loc truthLandmarkPath testLandmarkPath [-xml xmlpath]" << std::endl;
+		<<argv[0]<< " -loc truthLandmarkPath testLandmarkPath [-xml xmlpath]" << std::endl;
 	std::cout << "\nwhere:" << std::endl;
 	std::cout << "truthLandmarkPath	=path (or URL) to truth localizations. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "testLandmarkPath	=path (or URL) to testlandmarks beeing evaluated. URLs should be enclosed with quotations" << std::endl;
@@ -96,13 +98,13 @@ bool shouldUse(MetricId id, char* options){
 }
 
 std::string getOptions(MetricId id, char* options){
-	
+
 	string opt = options;
 	string metricid = metricInfo[id].metrId;
 	int len = metricid.size();
 	int ind1 = opt.find(metricid);
 	int opt_len = opt.size();
-	
+
 	if(ind1 != string::npos){
 		if(opt_len > (ind1+len) && opt.at(ind1+len) == '@'){
 			ind1 = ind1 + len + 1;
@@ -113,10 +115,38 @@ std::string getOptions(MetricId id, char* options){
 			}
 		}
 	}
-	
+
 	return nooption;
 }
 
+vector<string> parseDefaults(){
+	vector<string> options;
+	ifstream i_stream;
+	std::string line, token;
+	char* filename = (char*)"default.txt";
+	i_stream.open(filename); 
+
+	if (i_stream.is_open()) {
+		while (i_stream.good()) {
+			getline(i_stream,line);
+			trim(line);
+			if(line==""){
+				continue;
+			}
+			if(line.find("#")==0 ){
+				continue;
+			}
+
+			std::istringstream inputss (line);
+			while (getline(inputss, token, ' ') )
+			{
+				trim(token);
+				options.push_back(token);  
+			}
+		}
+	}
+	return options;
+}
 
 int main(int argc, char** argv)
 {
@@ -138,6 +168,7 @@ int main(int argc, char** argv)
 				options = argv[i + 1];
 			}
 		}
+
 
 		try 
 		{
@@ -172,6 +203,33 @@ int main(int argc, char** argv)
 		char* targetfile = NULL;
 		char* options = "all";
 		double threshold = -1;
+		bool use_default_config =false;
+
+		for (int i = 1; i < argc; i++) { 
+			if (std::string(argv[i]) == "-def" || std::string(argv[i]) == "-default") {
+				use_default_config = true;
+			}
+		}
+
+		if(use_default_config){
+			vector<string> default_options = parseDefaults();
+			if(default_options.size()>0){
+				for(int i=0; i<default_options.size(); i++){
+					if ( (i + 1) != default_options.size()){ 
+						if (default_options[i] == "-th") {
+							threshold = atof(default_options[i + 1].c_str());
+						}else if (default_options[i] == "-xml") {
+							 targetfile = new char[default_options[i + 1].length()];
+                             strcpy(targetfile,default_options[i + 1].c_str());
+						}else if (default_options[i] == "-use") {
+							 options = new char[default_options[i + 1].length()];
+                             strcpy(options,default_options[i + 1].c_str());
+						}
+					}
+				}
+			}
+		}
+
 		for (int i = 1; i < argc; i++) { 
 			if ( (i + 1) != argc){ 
 				if (std::string(argv[i]) == "-thd") {
@@ -182,12 +240,21 @@ int main(int argc, char** argv)
 					options = argv[i + 1];
 				}
 			}
+			if (std::string(argv[i]) == "-def" || std::string(argv[i]) == "-default") {
+				use_default_config = true;
+			}
 		}
 
+		if(use_default_config){
+		    cout << "\nUsing defalut.txt options: -use " << options;
+			if(targetfile!=NULL){
+				cout << " -xml " << targetfile;
+			}
+			if(threshold!=-1){
+				cout << " -thd " << threshold;
+			}
 
-		if(targetfile!=NULL &&  !itksys::SystemTools::FileExists(targetfile,true)){
-		     cout << "Target XML file doesn't exist: " << targetfile << std::endl;
-			 return 0;
+			cout << std::endl << std::endl;
 		}
 
 		try 
@@ -217,5 +284,6 @@ int main(int argc, char** argv)
 		return 0;
 	}
 }
+
 
 

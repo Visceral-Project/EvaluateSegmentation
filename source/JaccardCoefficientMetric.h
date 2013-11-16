@@ -31,7 +31,7 @@
 
 class JaccardCoefficientMetric
 {
-	typedef itk::Image<double, 3> ImageType;	
+
 	typedef itk::ImageRegionConstIterator<ImageType> FixedIteratorType;
 	typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
 
