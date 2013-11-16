@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 2.8) 
 project(EvaluateSegmentation) 
 find_package(ITK REQUIRED) 
@@ -14,6 +13,5 @@ else( "${ITK_VERSION_MAJOR}" LESS 4 )
   target_link_libraries(EvaluateSegmentation ${ITK_LIBRARIES})  
 endif( "${ITK_VERSION_MAJOR}" LESS 4 )  
 
-####################
 
 
