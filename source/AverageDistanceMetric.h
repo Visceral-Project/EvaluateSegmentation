@@ -124,6 +124,7 @@ public:
 
 
 	double calc(ImageType *image1, ImageType *image2){
+		
 		std::vector<VoxelInfo> empSeg;
 		int numberfalseNegatives=0;
 		int numberTruePositives=0;
@@ -178,13 +179,11 @@ public:
 			++movingIt;
 			++fixedIt;
 		}
-
 		if(numberfalseNegatives==0){
 			return 0;
 		}
 		std::vector<Cell> index = build();
 		VoxelInfo* falseNegatives = new VoxelInfo[numberfalseNegatives];
-		
 		int fp_ind=0;
 		int tp_ind=0;
 		#ifdef _DEBUG
@@ -216,6 +215,7 @@ public:
 				vi.z = movingIt.GetIndex()[2];
 				bool surface = isBoundary(movingIt.GetIndex(), image2);
 				if(surface){
+					
 					empSeg.push_back(vi);
 					int x_ind = vi.x/grid_len;
 					int y_ind = vi.y/grid_len;
@@ -224,6 +224,7 @@ public:
 					gc->voxels.push_back(vi);
 					gc->emp=false;
 					FP_index++;
+					
 				}
 			}
 
@@ -335,6 +336,7 @@ public:
 
 		}
 
+
           #ifdef _DEBUG
 			saveImage(falseNegatives, numberfalseNegatives, "falseNegatives.mha", max_x, max_y, max_z);
 			saveImage(falsePositives, numberFalsePositives, "falsePositives.mha", max_x, max_y, max_z);
@@ -402,6 +404,8 @@ public:
 		}
 
 		i[0] = index[0]+1; 
+		if(i[0]>max_x)
+			return true;
 		i[1] = index[1]; 
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
@@ -410,6 +414,9 @@ public:
 		}
 
 		i[0] = index[0]-1; 
+		if(i[0]<0)
+			return true;
+
 		i[1] = index[1]; 
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
@@ -419,6 +426,9 @@ public:
 
 		i[0] = index[0]; 
 		i[1] = index[1]+1; 
+		if(i[1]>max_y)
+			return true;
+
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
 		if(pix == 0){
@@ -427,6 +437,9 @@ public:
 
 		i[0] = index[0]; 
 		i[1] = index[1]-1; 
+		if(i[1]<0)
+			return true;
+
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
 		if(pix == 0){
@@ -436,14 +449,22 @@ public:
 		i[0] = index[0]; 
 		i[1] = index[1]; 
 		i[2] = index[2]+1; 
+		if(i[2]>max_z)
+			return true;
+
 		pix = image->GetPixel(i);
 		if(pix == 0){
 			return true;
 		}
 
 		i[0] = index[0]+1; 
+		if(i[0]>max_x)
+			return true;
+
 		i[1] = index[1]; 
 		i[2] = index[2]-1; 
+		if(i[2]<0)
+			return true;
 		pix = image->GetPixel(i);
 		if(pix == 0){
 			return true;
