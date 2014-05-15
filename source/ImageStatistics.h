@@ -39,6 +39,12 @@ public:
 	int num_nonzero_points_f;
 	int num_nonzero_points_m;
 	int num_intersection;
+	int max_x_f;
+	int max_y_f;
+	int max_z_f;
+	int max_x_m;
+	int max_y_m;
+	int max_z_m;
 	~ImageStatistics(){
 
 	}
@@ -46,18 +52,37 @@ public:
 	ImageStatistics(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold){
 		typedef itk::ImageRegionConstIterator<ImageType> FixedIteratorType;
 		typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
-
 		FixedIteratorType fixedIt(fixedImage, fixedImage->GetRequestedRegion());
-
 		MovingIteratorType movingIt(movingImage, movingImage->GetRequestedRegion());
 
+		double thd = 0;
+		if(!fuzzy && threshold!=-1){
+		    thd = threshold*PIXEL_VALUE_RANGE_MAX;
+		}
 		numberElements_f = 0;
 		num_nonzero_points_f=0;
 		fixedIt.GoToBegin();
+	    max_x_f = 0;
+	    max_y_f = 0;
+	    max_z_f = 0;
+	    max_x_m = 0;
+	    max_y_m = 0;
+	    max_z_m = 0;
 		while (!fixedIt.IsAtEnd()){
 			numberElements_f++;
-			if(fixedIt.Get()!=0){
+			if(fixedIt.Get()>thd){
 				num_nonzero_points_f++;
+			}
+
+			ImageType::IndexType ind = fixedIt.GetIndex();
+			if(ind[0]>max_x_f){
+			   max_x_f=ind[0];
+			}
+			if(ind[1]>max_y_f){
+			   max_y_f=ind[1];
+			}
+			if(ind[2]>max_z_f){
+			   max_z_f=ind[2];
 			}
 			++fixedIt;
 		}
@@ -67,9 +92,20 @@ public:
 		movingIt.GoToBegin();
 		while (!movingIt.IsAtEnd()){
 			numberElements_m++;
-		   if(movingIt.Get()!=0){
+		   if(movingIt.Get()>thd){
 				num_nonzero_points_m++;
 			}
+		   ImageType::IndexType ind = movingIt.GetIndex();
+			if(ind[0]>max_x_m){
+			   max_x_m=ind[0];
+			}
+			if(ind[1]>max_y_m){
+			   max_y_m=ind[1];
+			}
+			if(ind[2]>max_z_m){
+			   max_z_m=ind[2];
+			}
+
 			++movingIt;
 		}
 
@@ -77,7 +113,7 @@ public:
 		movingIt.GoToBegin();
 		fixedIt.GoToBegin();
 		while (!movingIt.IsAtEnd() && !fixedIt.IsAtEnd()){
-		   if(movingIt.Get()!=0 && fixedIt.Get()!=0){
+		   if(movingIt.Get()>thd && fixedIt.Get()>thd){
 				num_intersection++;
 			}
 			++movingIt;

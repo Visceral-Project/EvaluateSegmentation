@@ -32,20 +32,21 @@
 #include <itkVector.h>
 #include "itkLineIterator.h"
 #include "itkImageFileWriter.h"
+#include "itkConnectedComponentImageFilter.h"
 
 
 class AverageDistanceMetric
 {
 
-int grid_len;
-int grid_num_x;
-int grid_num_y;
-int grid_num_z;
+	int grid_len;
+	int grid_num_x;
+	int grid_num_y;
+	int grid_num_z;
 
-double max_extent;
-int max_x;
-int max_y;
-int max_z;
+	double max_extent;
+	int max_x;
+	int max_y;
+	int max_z;
 
 	typedef struct VoxelInfo{
 		int x;
@@ -68,7 +69,7 @@ int max_z;
 
 	typedef itk::Vector<double, 3> V2;
 	typedef itk::ImageRegionConstIterator<ImageType> IteratorType;
-	
+
 
 private:
 	ImageType *fixedImage;
@@ -94,8 +95,8 @@ public:
 	}
 
 	double CalcAverageDistace(bool prune){
-		double dist1 = calc(fixedImage, movingImage);
-		double dist2 = calc(movingImage, fixedImage);
+		double dist1 = calc(fixedImage, movingImage, false);
+		double dist2 = calc(movingImage, fixedImage, false);
 		return (dist1 + dist2)/2;
 	}
 
@@ -123,8 +124,13 @@ public:
 	}
 
 
-	double calc(ImageType *image1, ImageType *image2){
-		
+	double calc(ImageType *image1, ImageType *image2, bool exhaust_search){
+
+	    double thd = 0;
+		if(!fuzzy && threshold!=-1){
+		    thd = threshold*PIXEL_VALUE_RANGE_MAX;
+		}
+
 		std::vector<VoxelInfo> empSeg;
 		int numberfalseNegatives=0;
 		int numberTruePositives=0;
@@ -140,13 +146,13 @@ public:
 		movingIt.GoToBegin();
 		while (!fixedIt.IsAtEnd() && !movingIt.IsAtEnd()){
 			ImageType::IndexType index = movingIt.GetIndex();
-			if(fixedIt.Get()!=0 && movingIt.Get()==0){
+			if(fixedIt.Get()>thd && movingIt.Get()<=thd){
 				emp_f=false;
 				numberfalseNegatives++;
 			}
-			if(movingIt.Get()!=0){
+			if(movingIt.Get()>thd){
 				emp_m=false;
-				if(fixedIt.Get()!=0){
+				if(fixedIt.Get()>thd){
 					emp_f=false;
 					numberTruePositives++;
 				}
@@ -170,11 +176,11 @@ public:
 				max_z = index[2];
 			}
 
-            #ifdef _DEBUG
-				if(movingIt.Get()!=0 && fixedIt.Get()==0 ){
-					numberFalsePositives++;
-				}
-            #endif
+#ifdef _DEBUG
+			if(movingIt.Get()>thd && fixedIt.Get()<=thd ){
+				numberFalsePositives++;
+			}
+#endif
 
 			++movingIt;
 			++fixedIt;
@@ -186,28 +192,28 @@ public:
 		VoxelInfo* falseNegatives = new VoxelInfo[numberfalseNegatives];
 		int fp_ind=0;
 		int tp_ind=0;
-		#ifdef _DEBUG
-		    VoxelInfo* truePositives;
-			VoxelInfo* falsePositives;
-			falsePositives = new VoxelInfo[numberFalsePositives];
-			truePositives = new VoxelInfo[numberTruePositives];
-        #endif
+#ifdef _DEBUG
+		VoxelInfo* truePositives;
+		VoxelInfo* falsePositives;
+		falsePositives = new VoxelInfo[numberFalsePositives];
+		truePositives = new VoxelInfo[numberTruePositives];
+#endif
 
 		fixedIt.GoToBegin();
 		movingIt.GoToBegin();
 		int FP_index=0;
 		int FN_index=0;
-		
+
 		while (!fixedIt.IsAtEnd() && !movingIt.IsAtEnd()){
-			if(fixedIt.Get()!=0 && movingIt.Get()==0){
+			if(fixedIt.Get()>thd && movingIt.Get()<=thd){
 				falseNegatives[FN_index].value = fixedIt.Get();
 				falseNegatives[FN_index].x = fixedIt.GetIndex()[0];
 				falseNegatives[FN_index].y = fixedIt.GetIndex()[1];
 				falseNegatives[FN_index].z = fixedIt.GetIndex()[2];
 				FN_index++;
 			}
-			
-			if(movingIt.Get()!=0){
+
+			if(movingIt.Get()>thd){
 				VoxelInfo vi;
 				vi.value = movingIt.Get();
 				vi.x = movingIt.GetIndex()[0];
@@ -215,7 +221,7 @@ public:
 				vi.z = movingIt.GetIndex()[2];
 				bool surface = isBoundary(movingIt.GetIndex(), image2);
 				if(surface){
-					
+
 					empSeg.push_back(vi);
 					int x_ind = vi.x/grid_len;
 					int y_ind = vi.y/grid_len;
@@ -224,27 +230,27 @@ public:
 					gc->voxels.push_back(vi);
 					gc->emp=false;
 					FP_index++;
-					
+
 				}
 			}
 
-			#ifdef _DEBUG
-				if(fixedIt.Get()==0 && movingIt.Get()!=0){
-				   falsePositives[fp_ind].value = fixedIt.Get();
-				   falsePositives[fp_ind].x = fixedIt.GetIndex()[0];
-				   falsePositives[fp_ind].y = fixedIt.GetIndex()[1];
-				   falsePositives[fp_ind].z = fixedIt.GetIndex()[2];
-				   fp_ind++;
-				}
-				else if(fixedIt.Get()!=0 && movingIt.Get()!=0){
-				   truePositives[tp_ind].value = fixedIt.Get();
-				   truePositives[tp_ind].x = fixedIt.GetIndex()[0];
-				   truePositives[tp_ind].y = fixedIt.GetIndex()[1];
-				   truePositives[tp_ind].z = fixedIt.GetIndex()[2];
-				   tp_ind++;
-				
-				}
-			#endif
+#ifdef _DEBUG
+			if(fixedIt.Get()<=thd && movingIt.Get()>thd){
+				falsePositives[fp_ind].value = fixedIt.Get();
+				falsePositives[fp_ind].x = fixedIt.GetIndex()[0];
+				falsePositives[fp_ind].y = fixedIt.GetIndex()[1];
+				falsePositives[fp_ind].z = fixedIt.GetIndex()[2];
+				fp_ind++;
+			}
+			else if(fixedIt.Get()>thd && movingIt.Get()>thd){
+				truePositives[tp_ind].value = fixedIt.Get();
+				truePositives[tp_ind].x = fixedIt.GetIndex()[0];
+				truePositives[tp_ind].y = fixedIt.GetIndex()[1];
+				truePositives[tp_ind].z = fixedIt.GetIndex()[2];
+				tp_ind++;
+
+			}
+#endif
 			++movingIt;
 			++fixedIt;
 		}
@@ -253,6 +259,8 @@ public:
 		double AVD_NUM = 0;
 		maxValue = 10000000000;
 		V2 mean = calcMean(image2);
+
+		int rcount=0;
 
 		for(int ind=0 ; ind< numberfalseNegatives ; ind++){
 			VoxelInfo p1 = falseNegatives[ind];   
@@ -263,7 +271,11 @@ public:
 			VoxelInfo closest;
 			bool found =false;
 
-			double radius = calcSph(p1, image2, mean); 
+			double radius = -1;
+			if(!exhaust_search){
+				radius = calcSph(p1, image2, mean); 
+			}
+
 
 			if(radius!=-1){
 				//double radius = 50;
@@ -314,7 +326,7 @@ public:
 
 			}
 			else{
-
+				rcount++;
 				int size=empSeg.size();
 				for(int i=0; i< size;i++){
 					VoxelInfo p2 = empSeg[i];
@@ -326,8 +338,10 @@ public:
 				}
 			}
 
-			if(ind%10000==0){
-				//std::cout << ind<< " of "<< numberfalseNegatives<< std::endl;
+			if(ind%1000==0){
+				//if(exhaust_search)
+				//	std::cout << ind<< " of "<< numberfalseNegatives<< " rcount:" << rcount << std::endl;
+				rcount=0;
 			}
 
 			min = std::sqrt( (closest.x-x)*(closest.x-x) + (closest.y-y)*(closest.y-y) + (closest.z-z)*(closest.z-z) );
@@ -337,56 +351,57 @@ public:
 		}
 
 
-          #ifdef _DEBUG
-			saveImage(falseNegatives, numberfalseNegatives, "falseNegatives.mha", max_x, max_y, max_z);
-			saveImage(falsePositives, numberFalsePositives, "falsePositives.mha", max_x, max_y, max_z);
-		    saveImage(truePositives, numberTruePositives, "truePositives.mha", max_x, max_y, max_z);
-			VoxelInfo* surface = new VoxelInfo[FP_index];
-			for(int i=0; i< empSeg.size() ; i++){
-				VoxelInfo p= empSeg[i];
-				surface[i]=p;
-			}
-			saveImage(surface, FP_index, "surface.mha", max_x, max_y, max_z);
-         #endif
-		 
+#ifdef _DEBUG
+		//saveImage(falseNegatives, numberfalseNegatives, "falseNegatives.mha", max_x, max_y, max_z);
+		//saveImage(falsePositives, numberFalsePositives, "falsePositives.mha", max_x, max_y, max_z);
+		//saveImage(truePositives, numberTruePositives, "truePositives.mha", max_x, max_y, max_z);
+		//VoxelInfo* surface = new VoxelInfo[FP_index];
+		//for(int i=0; i< empSeg.size() ; i++){
+		//	VoxelInfo p= empSeg[i];
+		//	surface[i]=p;
+		//}
+		//saveImage(surface, FP_index, "surface.mha", max_x, max_y, max_z);
+#endif
+
 		return AVD_SUM/(AVD_NUM+numberTruePositives);
 
 	}
 
 	double calcSph(VoxelInfo p, ImageType *image, V2 mean){
+		
 		double x1 = p.x;
 		double y1 = p.y;
 		double z1 = p.z;
 		double x2 = mean[0];
 		double y2 = mean[1];
 		double z2 = mean[2];
+		//std::cout << " MEAN: "<< x2 << ", " << y2 << ", " << z2 << std::endl;
 		double distance = std::sqrt((double)((x2-x1)*(x2-x1)+ (y2-y1)*(y2-y1) + (z2-z1)*(z2-z1)));
-		ImageType::IndexType point;
-		int step = 1;
-		for( int i =2; i< distance; i=i+step){
-			int radius = i;
+		double x_factor = (x2-x1)/distance;
+		double y_factor = (y2-y1)/distance;
+		double z_factor = (z2-z1)/distance;
 
-			for(int n =0 ; n< i ; n++){
-				double u = ((double)std::rand()/(double)RAND_MAX)*2 -1;
-				double uus=std::sqrt(1-u*u);
-				double theta = ((double)std::rand()/(double)RAND_MAX) * 2 * PI;
-				double x = uus * std::cos(theta) * radius + x1;
-				double y = uus * std::sin(theta) * radius + y1;
-				double z = u * radius + z1;
+		
+		int step = 1;
+		ImageType::IndexType point;
+		for( int i =1;; i=i+step){
+				double x = x1 + i * x_factor;
+				double y = y1 + i * y_factor;
+				double z = z1 + i * z_factor;
 				if(x>max_x || y>max_y || z>max_z || x<0 || y<0 || z<0){
-					continue;
+					return -1;
 				}
 				point[0]=x;
 				point[1]=y;
 				point[2]=z;
+
 				ImageType::PixelType pix = image->GetPixel(point);
 				if(pix!=0){
 					return (double)i;
 				}
 
-			}
-
 		}
+		
 		return -1;
 	}
 
@@ -395,13 +410,6 @@ public:
 	bool isBoundary(ImageType::IndexType index, ImageType *image){
 		ImageType::IndexType i;
 		ImageType::PixelType pix;
-		i[0] = index[0]+1; 
-		i[1] = index[1]; 
-		i[2] = index[2]; 
-		pix = image->GetPixel(i);
-		if(pix == 0){
-			return true;
-		}
 
 		i[0] = index[0]+1; 
 		if(i[0]>max_x)
@@ -416,7 +424,6 @@ public:
 		i[0] = index[0]-1; 
 		if(i[0]<0)
 			return true;
-
 		i[1] = index[1]; 
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
@@ -428,7 +435,6 @@ public:
 		i[1] = index[1]+1; 
 		if(i[1]>max_y)
 			return true;
-
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
 		if(pix == 0){
@@ -439,7 +445,6 @@ public:
 		i[1] = index[1]-1; 
 		if(i[1]<0)
 			return true;
-
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
 		if(pix == 0){
@@ -451,16 +456,12 @@ public:
 		i[2] = index[2]+1; 
 		if(i[2]>max_z)
 			return true;
-
 		pix = image->GetPixel(i);
 		if(pix == 0){
 			return true;
 		}
 
-		i[0] = index[0]+1; 
-		if(i[0]>max_x)
-			return true;
-
+		i[0] = index[0]; 
 		i[1] = index[1]; 
 		i[2] = index[2]-1; 
 		if(i[2]<0)
@@ -503,7 +504,7 @@ public:
 		return emp_m;
 	}
 
-    #ifdef _DEBUG
+#ifdef _DEBUG
 	void saveImage(VoxelInfo* points, int num_points, char* path, int width, int length, int height){
 		ImageType::Pointer image1 = ImageType::New();
 		ImageType::IndexType start;
@@ -538,10 +539,10 @@ public:
 		WriterType::Pointer writer = WriterType::New();
 		writer->SetFileName(path);
 		writer->SetInput(image1);
-		writer->SetUseCompression (true);
+		//writer->SetUseCompression (true);
 		writer->Update();
 	}
-   #endif
+#endif
 
 };
 

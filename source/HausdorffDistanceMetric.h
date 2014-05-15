@@ -100,6 +100,12 @@ public:
 
 
 	double calc0(ImageType *image1, ImageType *image2, std::vector<double> *distances){
+
+	    double thd = 0;
+		if(!fuzzy && threshold!=-1){
+		    thd = threshold*PIXEL_VALUE_RANGE_MAX;
+		}
+
 		VoxelInfo* retrievedVoxels_1;
 		int numberRetr_1;
 		VoxelInfo* trueVoxels_1;
@@ -120,7 +126,7 @@ public:
 		movingIt.GoToBegin();
 		while (!fixedIt.IsAtEnd()){
 			numberElements_f++;
-			if(fixedIt.Get()!=0 && movingIt.Get()==0){
+			if(fixedIt.Get()>thd && movingIt.Get()<=thd){
 				empty_f=false;
 				numberTrue_1++;
 			}
@@ -133,7 +139,7 @@ public:
 		movingIt.GoToBegin();
 		while (!movingIt.IsAtEnd()){
 			numberElements_m++;
-			if(movingIt.Get()!=0){
+			if(movingIt.Get()>thd){
 				empty_m=false;
 				numberRetr_1++;
 			}
@@ -143,7 +149,7 @@ public:
 		fixedIt.GoToBegin();
 		movingIt.GoToBegin();
 		while (!movingIt.IsAtEnd()){
-			if(movingIt.Get()!=0 && fixedIt.Get()==0){
+			if(movingIt.Get()>thd && fixedIt.Get()<=thd){
 				numberTrue_2++;
 			}
 			++movingIt;
@@ -152,7 +158,7 @@ public:
 		numberRetr_2=0;
 		fixedIt.GoToBegin();
 		while (!fixedIt.IsAtEnd()){
-			if(fixedIt.Get()!=0){
+			if(fixedIt.Get()>thd){
 				numberRetr_2++;
 			}
 			++fixedIt;
@@ -165,14 +171,14 @@ public:
 		int FP_index=0;
 		int FN_index=0;
 		while (!movingIt.IsAtEnd() && !fixedIt.IsAtEnd()){
-			if(fixedIt.Get()!=0 && movingIt.Get()==0){
+			if(fixedIt.Get()>thd && movingIt.Get()<=thd){
 				trueVoxels_1[FN_index].value = fixedIt.Get();
 				trueVoxels_1[FN_index].x = fixedIt.GetIndex()[0];
 				trueVoxels_1[FN_index].y = fixedIt.GetIndex()[1];
 				trueVoxels_1[FN_index].z = fixedIt.GetIndex()[2];
 				FN_index++;
 			}
-			if(movingIt.Get()!=0){
+			if(movingIt.Get()>thd){
 				retrievedVoxels_1[FP_index].value = movingIt.Get();
 				retrievedVoxels_1[FP_index].x = movingIt.GetIndex()[0];
 				retrievedVoxels_1[FP_index].y = movingIt.GetIndex()[1];
@@ -194,14 +200,14 @@ public:
 		FP_index=0;
 		FN_index=0;
 		while (!movingIt.IsAtEnd() && !fixedIt.IsAtEnd()){
-			if(movingIt.Get()!=0 && fixedIt.Get()==0){
+			if(movingIt.Get()>thd && fixedIt.Get()<=thd){
 				trueVoxels_2[FN_index].value = fixedIt.Get();
 				trueVoxels_2[FN_index].x = fixedIt.GetIndex()[0];
 				trueVoxels_2[FN_index].y = fixedIt.GetIndex()[1];
 				trueVoxels_2[FN_index].z = fixedIt.GetIndex()[2];
 				FN_index++;
 			}
-			if(fixedIt.Get()!=0){
+			if(fixedIt.Get()>thd){
 				retrievedVoxels_2[FP_index].value = movingIt.Get();
 				retrievedVoxels_2[FP_index].x = movingIt.GetIndex()[0];
 				retrievedVoxels_2[FP_index].y = movingIt.GetIndex()[1];

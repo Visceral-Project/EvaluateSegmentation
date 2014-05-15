@@ -38,6 +38,7 @@
 
 
 using namespace std;
+itk::DOMNode::Pointer dOMObject;
 
 itk::DOMNode*  AddNodeWithAttributeIfNotExists(itk::DOMNode* parentNode, const char *nodename, const char * attributename, const char* attributeValue){
 	itk::DOMNode* node = parentNode->GetChild( nodename);
@@ -56,7 +57,7 @@ itk::DOMNode*  AddNodeWithAttributeIfNotExists(itk::DOMNode* parentNode, const c
 
 itk::DOMNode::Pointer  OpenSegmentationResultXML(const char* targtfile, const char* fixedImage, const char* movingImage, int num_pt_f, int num_pt_m, int num_intersec){
 	if(targtfile != NULL){
-		itk::DOMNode::Pointer dOMObject;
+
 		const char* xMLFileName = targtfile;
 		if(itksys::SystemTools::FileExists(xMLFileName,true)){
 			itk::DOMNodeXMLReader::Pointer reader = itk::DOMNodeXMLReader::New();
@@ -90,11 +91,47 @@ itk::DOMNode::Pointer  OpenSegmentationResultXML(const char* targtfile, const ch
 	return NULL;
 }
 
+void  pushTotalExecutionTime(long time,  itk::DOMNode::Pointer xmlObject){
+	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+		char val [50];
+		sprintf(val, "%d", time);
+		char* name="time";
+		itk::DOMNode* node = dOMObject->GetChild(name);
+		if(node == NULL){ 
+			itk::DOMNode::Pointer n = itk::DOMNode::New();
+			node = (itk::DOMNode *)n;
+			dOMObject->AddChildAtEnd( node );
+			node->SetName( name); 
+		}
+		node->SetAttribute( "total-executiontime", val );
+	}
+}
+
+void  pushDimentions(int max_x, int max_y, int max_z,  itk::DOMNode::Pointer xmlObject){
+	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+		char* name="dimention";
+		itk::DOMNode* node = dOMObject->GetChild(name);
+		if(node == NULL){ 
+			itk::DOMNode::Pointer n = itk::DOMNode::New();
+			node = (itk::DOMNode *)n;
+			dOMObject->AddChildAtEnd( node );
+			node->SetName( name); 
+		}
+		char val [50];
+		sprintf(val, "%d", max_x);
+		node->SetAttribute( "max_x", val );
+		sprintf(val, "%d", max_y);
+		node->SetAttribute( "max_y", val );
+		sprintf(val, "%d", max_z);
+		node->SetAttribute( "max_z", val );
+
+	}
+}
 
 
 void SaveXmlObject(itk::DOMNode::Pointer xmlObject, const char* targtfile){
 	if(targtfile != NULL && xmlObject != (itk::DOMNode::Pointer)NULL){
-	    itk::DOMNodeXMLWriter::Pointer writer = itk::DOMNodeXMLWriter::New();
+		itk::DOMNodeXMLWriter::Pointer writer = itk::DOMNodeXMLWriter::New();
 		writer->SetInput(xmlObject );
 		writer->SetFileName( targtfile );
 		writer->Update();
@@ -121,8 +158,14 @@ void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject){
 
 void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::Pointer xmlObject){
 	char val [50];
+	char exect [50];
 	sprintf(val, "%.6f", value);
-	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << " "<< std::endl;
+	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo;
+#ifdef _DEBUG 
+	sprintf(exect, "%.0f", executiontime);
+	std::cout << " (exec time: " << exect<< " ms)" << std::endl;
+#endif
+	std::cout << std::endl;
 	if(xmlObject != (itk::DOMNode::Pointer)NULL){
 		itk::DOMNode* metricnode = AddNodeWithAttributeIfNotExists((itk::DOMNode*)xmlObject, "metrics", NULL, NULL);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "name", metricInfo[id].metrInfo);
@@ -131,8 +174,8 @@ void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::P
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "type",  type);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "value", val);
 
-		sprintf(val, "%.0f", executiontime);
-		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "executiontime", val);
+		sprintf(exect, "%.0f", executiontime);
+		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "executiontime", exect);
 	}
 
 }
@@ -141,7 +184,7 @@ void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::P
 
 void pushMessage(const char *message, const char* targtfile, const char* fixedImage, const char* movingImage){
 	std::cout <<  message << std::endl;
-		if(targtfile != NULL){
+	if(targtfile != NULL){
 		itk::DOMNode::Pointer dOMObject;
 		const char* xMLFileName = targtfile;
 		if(itksys::SystemTools::FileExists(xMLFileName,true)){
@@ -172,36 +215,79 @@ void pushMessage(const char *message, const char* targtfile, const char* fixedIm
 }
 
 bool isUrl(const char* path){
-   string p = path;
-   int ind = p.find("http:");
-   if( ind != string::npos){
-      return true;
-   }
-   ind = p.find("https:");
-   if( ind != string::npos){
-      return true;
-   }
-   ind = p.find("ftp:");
-   if( ind != string::npos){
-      return true;
-   }
-   ind = p.find("ftps:");
-   if( ind != string::npos){
-      return true;
-   }
+	string p = path;
+	int ind = p.find("http:");
+	if( ind != string::npos){
+		return true;
+	}
+	ind = p.find("https:");
+	if( ind != string::npos){
+		return true;
+	}
+	ind = p.find("ftp:");
+	if( ind != string::npos){
+		return true;
+	}
+	ind = p.find("ftps:");
+	if( ind != string::npos){
+		return true;
+	}
 
-   return false;
+	return false;
 
 }
 
- void trim(string& s)
-  {
-     size_t p = s.find_first_not_of(" \t");
-     s.erase(0, p);
-       p = s.find_last_not_of(" \t");
-     if (string::npos != p)
-         s.erase(p+1);
-   }
+bool is2Dimage(const char* path){
+	 
+	string name = path;
+	string extension = ".png";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+	extension = ".PNG";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+
+	 extension = ".jpg";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+		extension = ".JPG";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+
+	extension = ".gif";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+	extension = ".GIF";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+
+	 extension = ".bmp";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+	extension = ".BMP";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+
+	 extension = ".tiff";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+	extension = ".TIFF";
+	if (0 == name.compare (name.length() - extension.length(), extension.length(), extension))
+		return true;
+
+	return false;
+
+}
+
+
+void trim(string& s)
+{
+	size_t p = s.find_first_not_of(" \t");
+	s.erase(0, p);
+	p = s.find_last_not_of(" \t");
+	if (string::npos != p)
+		s.erase(p+1);
+}
 
 
 #endif

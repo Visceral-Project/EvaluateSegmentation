@@ -50,16 +50,30 @@ public:
 	}
 
 	double CalcGlobalConsistencyError(){
-	  double n00 = contingencyTable->tn;
-      double n10 = contingencyTable->fp;
-      double n01 = contingencyTable->fn; 
-      double n11 = contingencyTable->tp;
+       // according to compare_segmentations.m
+	  //double n00 = contingencyTable->tn;
+      //double n10 = contingencyTable->fp;
+      //double n01 = contingencyTable->fn; 
+      //double n11 = contingencyTable->tp;
+	  //double num1 =  contingencyTable->numberElements_f;
+	  //double num2 =  contingencyTable->numberElements_m;
+
+	  //double n = std::min(num1, num2);
+	  //double e1 = 1 - (((n00*n00+n01*n01)/(n00+n01)) + ((n10*n10 + n11*n11)/(n10+n11)))/n;
+	  //double e2 = 1 - (((n00*n00+n10*n10)/(n00+n10)) + ((n01*n01 + n11*n11)/(n01+n11)))/n;
+
+      //according to paper Martin2001		 
+ 	  double tn = contingencyTable->tn;
+      double fp = contingencyTable->fp;
+      double fn = contingencyTable->fn; 
+      double tp = contingencyTable->tp;
 	  double num1 =  contingencyTable->numberElements_f;
 	  double num2 =  contingencyTable->numberElements_m;
 
-	  double n = std::min(num1, num2);
-	  double e1 = 1 - (((n00*n00+n01*n01)/(n00+n01)) + ((n10*n10 + n11*n11)/(n10+n11)))/n;
-	  double e2 = 1 - (((n00*n00+n10*n10)/(n00+n10)) + ((n01*n01 + n11*n11)/(n01+n11)))/n;
+	  double n = tn+fp+fn+tp;
+	  double e1 = ( fn*(fn+ 2*tp)/(tp+fn) + fp*(fp + 2*tn)/(tn+fp) )/n;
+	  double e2 = ( fp*(fp+2*tp)/(tp+fp) + fn*(fn + 2*tn)/(tn+fn) )/n;
+
 	  return std::min(e1, e2);
 	}
 

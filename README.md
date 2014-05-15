@@ -52,7 +52,7 @@ Classic measures
 
 2 Supported Images  
 
-EvaluateSegmentation is built on the ITK Library thus it supports all 3D file formats   
+EvaluateSegmentation is built on the ITK Library thus it supports all 2D/3D file formats   
 that are supported by ITK, e.g .nii, .mha, etc. The two Images should however have the  
 same size (the same number of grid size). There should be only one label in an image,  
 where a voxel value can be either zero (background) or a value between zero and  
@@ -72,6 +72,7 @@ truthPath:	path (or URL) to truth image. URLs should be enclosed with quotations
 segmentPath:	path (or URL) to image being evaluated. URLs should be enclosed with quotations.  
 -th threshold:	before evaluation convert fuzzy images to binary using the given threshold.  
 -xml xmlpath:	path to xml file where results should be saved.  
+-nostreaming:	Don't use streaming filter! Streaming filter is used to handle very large images. Use this option with small images (up to 200X200X200 voxels) to avoid time efort related with streaming.
 -help:		more information  
 -use metriclist:this option can be used to specify which metrics should be used. 
 

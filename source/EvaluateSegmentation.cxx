@@ -54,6 +54,7 @@ void usage(int argc, char** argv){
 	std::cout << "segmentPath	=path (or URL) to image beeing evaluated. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "-th	=before evaluation convert fuzzy images to binary using threshold" << std::endl;
 	std::cout << "-xml	=path to xml file where result should be saved" << std::endl;
+	std::cout << "-nostreaming	=Don't use streaming filter! Streaming filter is used to handle very large images. Use this option with small images (up to 200X200X200 voxels) to avoid time efort related with streaming." << std::endl;
 	std::cout << "-help	=more information" << std::endl;	
 	std::cout << "-use	=the metrics to be used. Note that additional options can be given between two @ characters:\n" << std::endl;
 	std::cout << "	all	:use all available metrics (default)" << std::endl;
@@ -152,6 +153,9 @@ int main(int argc, char** argv)
 {
 	initMetricInfo();
 
+	clock_t t = clock();
+    long long time_start= ((double)t*1000)/CLOCKS_PER_SEC;	
+
 	if(argc < 3){
 		usage(argc, argv);
 		return 0;
@@ -161,12 +165,14 @@ int main(int argc, char** argv)
 		char* testfile =  argv[3];
 		char* targetfile = NULL;
 		char* options = "all";
+		
 		for (int i = 1; i < argc; i++) { 
 			if (std::string(argv[i]) == "-xml") {
 				targetfile = argv[i + 1];
 			}else if (std::string(argv[i]) == "-use") {
 				options = argv[i + 1];
 			}
+			
 		}
 
 
@@ -204,10 +210,16 @@ int main(int argc, char** argv)
 		char* options = "all";
 		double threshold = -1;
 		bool use_default_config =false;
-
+		bool useStreamingFilter=true;
+		if(is2Dimage(truthfile) && is2Dimage(testfile)){
+		    useStreamingFilter=false;
+		}
 		for (int i = 1; i < argc; i++) { 
 			if (std::string(argv[i]) == "-def" || std::string(argv[i]) == "-default") {
 				use_default_config = true;
+			}
+			else if (std::string(argv[i]) == "-nostreaming") {
+				useStreamingFilter = false;
 			}
 		}
 
@@ -243,6 +255,9 @@ int main(int argc, char** argv)
 			if (std::string(argv[i]) == "-def" || std::string(argv[i]) == "-default") {
 				use_default_config = true;
 			}
+			else if (std::string(argv[i]) == "-nostreaming") {
+				useStreamingFilter = false;
+			}
 		}
 
 		if(use_default_config){
@@ -259,7 +274,7 @@ int main(int argc, char** argv)
 
 		try 
 		{
-			validateImage(truthfile, testfile, threshold, targetfile, options);
+			validateImage(truthfile, testfile, threshold, targetfile, options, time_start, useStreamingFilter);
 		} 
 		catch (itk::ExceptionObject& e)
 		{

@@ -68,23 +68,9 @@
 #include "itkStreamingImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkCastImageFilter.h"
-
-
-
 #ifdef _DEBUG
-#include "HausdorffDistanceMetric_V1.h"
-#include "HausdorffDistanceMetric_V2.h"
-#include "HausdorffDistanceMetric_ITK.h"
-#include "NaiveHausdorffDistanceMetric.h"
-#include "TestHausdorff.h" 
-#include "AverageDistanceMetric_V3.h"
-#include "MeanToMeanDistanceMetric.h"
-#include "TestMetric.h"
-#include "AbstractValidationMetric.h"
-#include "CohenKappaImageToImageMetric.h"
-#include "CohenKappaImageToImageMetric.txx"
+#include "AdditionalTestMetrics.h"
 #endif
-
 
 using namespace std;
 
@@ -94,15 +80,12 @@ std::string getOptions(MetricId id, char* options);
 bool isUrl(const char* path);
 void testHausdorf(ImageType::Pointer truthImg, ImageType::Pointer testImg, double threshold, bool fuzzy, MetricId metricId, itk::DOMNode::Pointer xmlObject, int option, VoxelPreprocessor *);
 const std::string nooption = "NOOPTION";
-ImageType::Pointer loadImage(const char* filename);
+ImageType::Pointer loadImage(const char* filename,  bool useStreamingFilter);
 
 
-int validateImage(const char* f1, const char* f2, double threshold, const char* targetFile, char *options)
+int validateImage(const char* f1, const char* f2, double threshold, const char* targetFile, char *options, long long int time_start, bool useStreamingFilter)
 {
 
-
-	time_t begin;
-	time(&begin);
 
 	VoxelPreprocessor *voxelPreprocessor;
 	ImageStatistics *imagestatistics;
@@ -111,12 +94,12 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 	if(!fuzzy){
 		std::cout << "Crisp segmentation at threshold= " << threshold << "\n" << std::endl;
 	}
-	ImageType::Pointer truthImg = loadImage(f1);
+	ImageType::Pointer truthImg = loadImage(f1, useStreamingFilter);
 	if(truthImg == (ImageType::Pointer) 0){
 		return EXIT_FAILURE;
 	}
 
-	ImageType::Pointer testImg = loadImage(f2);
+	ImageType::Pointer testImg = loadImage(f2, useStreamingFilter);
 
 	if(testImg == (ImageType::Pointer) 0){
 		return EXIT_FAILURE;
@@ -164,6 +147,28 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 		pushMessage(message.str().c_str(), targetFile, f1, f2);
 		return 0;
 	}
+
+#ifdef _DEBUG
+	string opt = options;
+	int ind1 = opt.find("TESTMETRICS");
+	if(ind1 != string::npos){
+		std::cout << "TestMetrics begin" << std::endl;
+		double quantile = 1;
+		StartAdditionalTestMetrics( truthImg,  testImg,  threshold,  fuzzy,   xmlObject, options, voxelPreprocessor);
+		std::cout << "TestMetrics end" << std::endl;	
+		
+	    clock_t t = clock();
+        long long time_end= ((double)t*1000)/CLOCKS_PER_SEC;	
+		int total_milliseconds =  (time_end-time_start);
+		std::cout << "\nTotal execution time= "<< total_milliseconds << " milliseconds\n"<< std::endl;
+		std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
+		pushTotalExecutionTime(total_milliseconds, xmlObject);
+		pushDimentions(imagestatistics->max_x_f, imagestatistics->max_y_f, imagestatistics->max_z_f, xmlObject);
+		SaveXmlObject(xmlObject, targetFile);
+		return EXIT_SUCCESS;
+	}
+#endif
+
 
 	std::cout << "Similarity:" << std::endl;
 	double value=0;
@@ -245,40 +250,33 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 	metricId = HDRFDST;
 	if(shouldUse(metricId, options)){
 		std::string quantile_s=getOptions(metricId, options);
+	    clock_t t = clock();
+        long long s1= ((double)t*1000)/CLOCKS_PER_SEC;	
 
-		double quantile=1;
+	    double quantile=1;
 		if(quantile_s!=nooption){
 			std::istringstream stm(quantile_s);
 			stm>>quantile;
 		}
-#ifdef _DEBUG
-		std::cout << "TestHausdorff begin" << std::endl;
-		testHausdorf( truthImg,  testImg,  threshold,  fuzzy,   metricId,  xmlObject, quantile, voxelPreprocessor);
-		std::cout << "TestHausdorff end" << std::endl;
-#endif
 		HausdorffDistanceMetric *hausdorffDistanceMetric = new HausdorffDistanceMetric(truthImg, testImg, fuzzy, threshold);
 		value =  hausdorffDistanceMetric->CalcHausdorffDistace(quantile);
-		pushValue(metricId, value, xmlObject);
+	    t = clock();
+        long long s2= ((double)t*1000)/CLOCKS_PER_SEC;	
+
+	int milliseconds =  (s2-s1);
+		pushValue(metricId, value, milliseconds, xmlObject);
 	}
 
 	metricId = AVGDIST;
 	if(shouldUse(metricId, options)){
+	    clock_t t = clock();
+        long long s1= ((double)t*1000)/CLOCKS_PER_SEC;	
 		AverageDistanceMetric *averageDistanceMetric = new AverageDistanceMetric(truthImg, testImg, fuzzy, threshold);
 		value =  averageDistanceMetric->CalcAverageDistace(false);
-		pushValue(metricId, value, xmlObject);
-#ifdef _DEBUG
-		std::cout << "TestAverageDistance begin"<<  std::endl;
-		FILETIME ft_now;
-		GetSystemTimeAsFileTime(&ft_now);
-		long long int s1 =(LONGLONG)ft_now.dwLowDateTime + ((LONGLONG)(ft_now.dwHighDateTime) << 32LL);
-		AverageDistanceMetric_V3 *averageDistanceMetric3 = new AverageDistanceMetric_V3(truthImg, testImg, fuzzy, threshold); 
-		value =  averageDistanceMetric3->CalcAverageDistace(false);
-		GetSystemTimeAsFileTime(&ft_now);
-		long long int s2 =(LONGLONG)ft_now.dwLowDateTime + ((LONGLONG)(ft_now.dwHighDateTime) << 32LL);
-		int milliseconds =  (s2-s1)/10000;
-		std::cout << "AVGDST V3:" << value<< " (" << milliseconds <<" sec)"<<  std::endl;
-		std::cout << "TestAverageDistance end"<<  std::endl;
-#endif
+	    t = clock();
+        long long s2= ((double)t*1000)/CLOCKS_PER_SEC;	
+		int milliseconds =  (s2-s1);
+		pushValue(metricId, value, milliseconds, xmlObject);
 	}
 
 	metricId = MAHLNBS;
@@ -310,25 +308,6 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 		pushValue(metricId, value, xmlObject);
 	}
 
-#ifdef _DEBUG
-	metricId = MEANTOMEAN;
-	if(shouldUse(metricId, options)){
-		MeanToMeanDitanceMetric *meanToMeanDitanceMetric = new MeanToMeanDitanceMetric(truthImg, testImg, voxelPreprocessor, fuzzy, threshold);
-		value =  meanToMeanDitanceMetric->CalcMeanToMeanDistace();
-		pushValue(metricId, value, xmlObject);
-	}
-
-	metricId = TEST;
-	if(shouldUse(metricId, options)){
-        typedef CohenKappaImageToImageMetric<ImageType, ImageType>  CohenKappaMetricType;
-        CohenKappaMetricType::Pointer kappaMetric = CohenKappaMetricType::New();
-		kappaMetric->SetFixedImage(truthImg);
-		kappaMetric->SetMovingImage(testImg);
-		value =  kappaMetric->GetValue();
-		pushValue(metricId, value, xmlObject);
-	}
-
-#endif
 
 	std::cout << "\nClassic Measures:" << std::endl;
 
@@ -376,27 +355,27 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 	}
 
 
-	SaveXmlObject(xmlObject, targetFile);
-
-	time_t end;
-	time(&end);
-	double seconds = difftime(end, begin);
-	std::cout << "\nExecution time= "<< seconds << " seconds\n"<< std::endl;
+	clock_t t = clock();
+    long long time_end= ((double)t*1000)/CLOCKS_PER_SEC;	
+	int total_milliseconds =  (time_end-time_start);
+	std::cout << "\nTotal execution time= "<< total_milliseconds << " milliseconds\n"<< std::endl;
 	std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
-
+	pushTotalExecutionTime(total_milliseconds, xmlObject);
+	pushDimentions(imagestatistics->max_x_f, imagestatistics->max_y_f, imagestatistics->max_z_f, xmlObject);
+	SaveXmlObject(xmlObject, targetFile);
 
 	return EXIT_SUCCESS;
 }
 
 
 
-ImageType::Pointer loadImage( const char* filename){
+ImageType::Pointer loadImage( const char* filename, bool useStreamingFilter){
 	bool truth_url=isUrl(filename);
 	if(truth_url){
 		string temp_file = download_image(filename, "__temp_image.nii"); 
 		cout << "loading " << filename << std::endl;
-		ImageType::Pointer img = loadImage(temp_file.c_str());
-	    remove(temp_file.c_str()) ;
+		ImageType::Pointer img = loadImage(temp_file.c_str(), useStreamingFilter);
+		remove(temp_file.c_str()) ;
 		return img;
 	} 
 	else{
@@ -407,40 +386,60 @@ ImageType::Pointer loadImage( const char* filename){
 		try
 		{
 			ImageType::Pointer img ;
-            typedef itk::Image<float, 3> FloatImageType;	
-			typedef itk::ImageFileReader<FloatImageType> FloatFileReaderType;
-			typedef itk::RescaleIntensityImageFilter<FloatImageType,FloatImageType > FloatScalingFilterType;
-            typedef itk::CastImageFilter< FloatImageType, ImageType > CastFilterType;
-			typedef itk::StreamingImageFilter<ImageType, ImageType> StreamingFilterType;
-	        FloatFileReaderType::Pointer reader1 = FloatFileReaderType::New();
-	        reader1->SetFileName(filename);
-			StreamingFilterType::Pointer streamingFilter = StreamingFilterType::New();
-			FloatScalingFilterType::Pointer scalingfilter = FloatScalingFilterType::New();
-			scalingfilter->SetOutputMinimum( PIXEL_VALUE_RANGE_MIN );
-			scalingfilter->SetOutputMaximum( PIXEL_VALUE_RANGE_MAX );
-			scalingfilter->SetInput( reader1->GetOutput() );
-            CastFilterType::Pointer castFilter = CastFilterType::New();
-            castFilter->SetInput(scalingfilter->GetOutput());
-			streamingFilter->SetInput(castFilter->GetOutput());
-			streamingFilter->Update();
-			img = streamingFilter->GetOutput();
+			if(useStreamingFilter){
+				typedef itk::Image<float, 3> FloatImageType;	
+				typedef itk::ImageFileReader<FloatImageType> FloatFileReaderType;
+				typedef itk::RescaleIntensityImageFilter<FloatImageType,FloatImageType > FloatScalingFilterType;
+				typedef itk::CastImageFilter< FloatImageType, ImageType > CastFilterType;
+				typedef itk::StreamingImageFilter<ImageType, ImageType> StreamingFilterType;
+				FloatFileReaderType::Pointer reader1 = FloatFileReaderType::New();
+				reader1->SetFileName(filename);
+				StreamingFilterType::Pointer streamingFilter = StreamingFilterType::New();
+				FloatScalingFilterType::Pointer scalingfilter = FloatScalingFilterType::New();
+				scalingfilter->SetOutputMinimum( PIXEL_VALUE_RANGE_MIN );
+				scalingfilter->SetOutputMaximum( PIXEL_VALUE_RANGE_MAX );
+				scalingfilter->SetInput( reader1->GetOutput() );
+				CastFilterType::Pointer castFilter = CastFilterType::New();
+				castFilter->SetInput(scalingfilter->GetOutput());
+				streamingFilter->SetInput(castFilter->GetOutput());
+				streamingFilter->Update();
+				img = streamingFilter->GetOutput();
+			}
+			else{
+				typedef itk::Image<float, 3> FloatImageType;	
+				typedef itk::ImageFileReader<FloatImageType> FloatFileReaderType;
+				typedef itk::RescaleIntensityImageFilter<FloatImageType,FloatImageType > FloatScalingFilterType;
+				typedef itk::CastImageFilter< FloatImageType, ImageType > CastFilterType;
+				FloatFileReaderType::Pointer reader1 = FloatFileReaderType::New();
+				reader1->SetFileName(filename);
+				FloatScalingFilterType::Pointer scalingfilter = FloatScalingFilterType::New();
+				scalingfilter->SetOutputMinimum( PIXEL_VALUE_RANGE_MIN );
+				scalingfilter->SetOutputMaximum( PIXEL_VALUE_RANGE_MAX );
+				scalingfilter->SetInput( reader1->GetOutput() );
+				CastFilterType::Pointer castFilter = CastFilterType::New();
+				castFilter->SetInput(scalingfilter->GetOutput());
+				castFilter->Update();
+				img = castFilter->GetOutput();
+			}
 
-            #ifdef _DEBUG
-  		    cout << "saving image .." << std::endl;
+#ifdef _DEBUG
+			/*
+			cout << "saving image .." << std::endl;
 			typedef  itk::ImageFileWriter< ImageType  > FileWriterType;
 			FileWriterType::Pointer writer = FileWriterType::New();
 			writer->SetFileName("debug_image.nii");
 			writer->SetInput(streamingFilter->GetOutput());
 			writer->Update();
-	       cout << "Image saved" << std::endl;
-            #endif
+			cout << "Image saved" << std::endl;
+			*/
+#endif
 
 			return img;
 		}
 		catch( itk::ExceptionObject & err )
 		{
-					std::cerr << "Unable to load image!" << std::endl;
-					std::cerr << err << std::endl;
+			std::cerr << "Unable to load image!" << std::endl;
+			std::cerr << err << std::endl;
 		}
 
 

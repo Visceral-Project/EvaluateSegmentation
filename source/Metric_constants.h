@@ -42,10 +42,12 @@ typedef struct MetricInfo{
 
 MetricInfo* metricInfo;
 
-enum MetricId  {DICE,    JACRD, AUC, KAPPA, RNDIND, ADJRIND, ICCORR, VOLSMTY, MUTINF, 
+enum MetricId  {DICE, JACRD, AUC, KAPPA, RNDIND, ADJRIND, ICCORR, VOLSMTY, MUTINF, 
                  MAHLNBS, AVGDIST, HDRFDST, VARINFO, GCOERR, PROBDST,       
-                 SNSVTY, SPCFTY, PRCISON,  FMEASR, ACURCY, FALLOUT, MEANTOMEAN
-				 ,HDRFDSTITK, HDRFDSTNAIVE, TEST
+                 SNSVTY, SPCFTY, PRCISON,  FMEASR, ACURCY, FALLOUT
+#ifdef _DEBUG
+				 , MEANTOMEAN ,HDRFDSTITK, HDRFDSTNAIVE, MAHAVDIST, TEST, AVGDISTITK
+#endif
 				 , LEN
 
 };
@@ -143,7 +145,7 @@ void initMetricInfo(){
   info = &metricInfo[AVGDIST];
   info->metrId = "AVGDIST";
   info->metrSymb="AVGDIST";
-  info->metrInfo ="Average Hausdorff Distance"; // tested with naive algorithm mit small image
+  info->metrInfo ="Average Hausdorff Distance"; // tested with naive algorithm
   info->help ="Average Hausdorff Distance";
   info->similarity =false;
   info->testmetric =false;
@@ -222,8 +224,9 @@ void initMetricInfo(){
   info->similarity =false;
   info->testmetric =false;
 
+#ifdef _DEBUG
   info = &metricInfo[HDRFDSTITK];
-  info->metrId = "HDRFDSTIKT";
+  info->metrId = "HDRFDSTITK";
   info->metrSymb="HDRFDSTITK";
   info->metrInfo ="HDRFDSTITK";
   info->help ="HDRFDSTITK";
@@ -235,6 +238,14 @@ void initMetricInfo(){
   info->metrSymb="HDRFDSTNAIVE";
   info->metrInfo ="HDRFDSTNAIVE";
   info->help ="HDRFDSTNAIVE";
+  info->similarity =false;
+  info->testmetric =true;
+
+  info = &metricInfo[AVGDISTITK];
+  info->metrId = "AVGDISTITK";
+  info->metrSymb="AVGDISTITK";
+  info->metrInfo ="AVGDISTITK";
+  info->help ="AVGDISTITK";
   info->similarity =false;
   info->testmetric =true;
 
@@ -253,6 +264,15 @@ void initMetricInfo(){
   info->help ="TEST";
   info->similarity =true;
   info->testmetric =true;
+
+info = &metricInfo[MAHAVDIST];
+  info->metrId = "MAHAVDIST";
+  info->metrSymb="MAHAVDIST";
+  info->metrInfo ="Mahalanobis Average Hausdorff Distance"; // tested with naive algorithm mit small image
+  info->help ="Mahalanobis Average Hausdorff Distance";
+  info->similarity =false;
+  info->testmetric =true;
+#endif
 
 }
 

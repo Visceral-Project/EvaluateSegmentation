@@ -76,7 +76,7 @@ public:
 
 			}
 			else{
-				values_f[ind] =  fixedIt.Value()<(threshold*PIXEL_VALUE_RANGE_MAX)?PIXEL_VALUE_RANGE_MIN:PIXEL_VALUE_RANGE_MAX;
+				values_f[ind] =  fixedIt.Value()>(threshold*PIXEL_VALUE_RANGE_MAX)?PIXEL_VALUE_RANGE_MAX:PIXEL_VALUE_RANGE_MIN;
 				
 			}
 
@@ -103,7 +103,7 @@ public:
 	
 			}
 			else{
-				values_m[ind] = movingIt.Value()<(threshold*PIXEL_VALUE_RANGE_MAX)?PIXEL_VALUE_RANGE_MIN:PIXEL_VALUE_RANGE_MAX;
+				values_m[ind] = movingIt.Value()>(threshold*PIXEL_VALUE_RANGE_MAX)?PIXEL_VALUE_RANGE_MAX:PIXEL_VALUE_RANGE_MIN;
 			}
 			if(values_m[ind] !=0){
 				empty_m=false;

@@ -309,7 +309,7 @@ std::string download_image(const char* url, std::string filename)
 
         if(size != noSizeGiven) 
         {
-            cout << "0%";
+           // cout << "0%";
             while(recvSize < size)
             {
                 if((bytesRecv = Recv(Socket, buf, sizeof(buf), 0)) <= 0)
@@ -318,7 +318,7 @@ std::string download_image(const char* url, std::string filename)
                 }
                 recvSize += bytesRecv;
                 fout.write(buf, bytesRecv);
-                cout << "\r" << recvSize * 100 / size << "%" << flush; 
+               // cout << "\r" << recvSize * 100 / size << "%" << flush; 
             }
         }
         else
