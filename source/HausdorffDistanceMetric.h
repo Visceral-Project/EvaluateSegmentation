@@ -105,6 +105,9 @@ public:
 		if(!fuzzy && threshold!=-1){
 		    thd = threshold*PIXEL_VALUE_RANGE_MAX;
 		}
+		else{
+		    thd = 0.5*PIXEL_VALUE_RANGE_MAX;
+		}
 
 		VoxelInfo* retrievedVoxels_1;
 		int numberRetr_1;

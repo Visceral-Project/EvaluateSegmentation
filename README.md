@@ -70,7 +70,7 @@ EvaluateSegmentation truthPath segmentPath [-thd threshold] [-xml xmlpath] [-use
 where:  
 truthPath:	path (or URL) to truth image. URLs should be enclosed with quotations.  
 segmentPath:	path (or URL) to image being evaluated. URLs should be enclosed with quotations.  
--th threshold:	before evaluation convert fuzzy images to binary using the given threshold.  
+-thd threshold:	before evaluation convert fuzzy images to binary using the given threshold.  
 -xml xmlpath:	path to xml file where results should be saved.  
 -nostreaming:	Don't use streaming filter! Streaming filter is used to handle very large images. Use this option with small images (up to 200X200X200 voxels) to avoid time efort related with streaming.
 -help:		more information  
@@ -110,7 +110,7 @@ Example 1: EvaluateSegmentation truth.nii segment.nii –use RNDIND,HDRFDST@0.96
 
 This example shows how to compare two NIFTI images providing the Rand Index, Hausdorff distance and the F-Measure and save the results in result.xml. The values between two @ symbols are parameters to the specific  measures in this case the quantile value used with Hausdorff distance to avoid outliers. The second value (0.5) is the beta value used with the F-Measure.
 
-Example 2: EvaluateSegmentation truth.nii segment.nii –use all  -th 0.5  
+Example 2: EvaluateSegmentation truth.nii segment.nii –use all  -thd 0.5  
 
 This example compares two images using all available metrics. Before comparing the images, they are converted to binary images using a threshold of 0.5, that is voxels with values in [0,0.5) are considered as background and those with values in [0.5,1] are assigned the label with a membership of 1. 
 

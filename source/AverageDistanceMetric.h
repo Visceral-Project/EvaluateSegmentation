@@ -75,7 +75,7 @@ private:
 	ImageType *fixedImage;
 	ImageType *movingImage;
 	bool fuzzy;
-	double threshold;
+	double thd;
 	bool emp_f;
 	bool emp_m;
 	double maxValue;
@@ -89,9 +89,15 @@ public:
 		this->fixedImage = fixedImage;
 		this->movingImage = movingImage;
 		this->fuzzy = fuzzy;
-		this->threshold = threshold;
-
 		grid_len =7;
+        this->thd = 0;
+		if(!fuzzy && threshold!=-1){
+		    this->thd = threshold*PIXEL_VALUE_RANGE_MAX;
+		}
+		else{
+		    this->thd = 0.5*PIXEL_VALUE_RANGE_MAX;
+		}
+
 	}
 
 	double CalcAverageDistace(bool prune){
@@ -125,12 +131,6 @@ public:
 
 
 	double calc(ImageType *image1, ImageType *image2, bool exhaust_search){
-
-	    double thd = 0;
-		if(!fuzzy && threshold!=-1){
-		    thd = threshold*PIXEL_VALUE_RANGE_MAX;
-		}
-
 		std::vector<VoxelInfo> empSeg;
 		int numberfalseNegatives=0;
 		int numberTruePositives=0;
@@ -221,7 +221,6 @@ public:
 				vi.z = movingIt.GetIndex()[2];
 				bool surface = isBoundary(movingIt.GetIndex(), image2);
 				if(surface){
-
 					empSeg.push_back(vi);
 					int x_ind = vi.x/grid_len;
 					int y_ind = vi.y/grid_len;
@@ -230,7 +229,6 @@ public:
 					gc->voxels.push_back(vi);
 					gc->emp=false;
 					FP_index++;
-
 				}
 			}
 
@@ -396,7 +394,7 @@ public:
 				point[2]=z;
 
 				ImageType::PixelType pix = image->GetPixel(point);
-				if(pix!=0){
+				if(pix > thd){
 					return (double)i;
 				}
 
@@ -417,7 +415,7 @@ public:
 		i[1] = index[1]; 
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
-		if(pix == 0){
+		if(pix <= thd){
 			return true;
 		}
 
@@ -427,7 +425,7 @@ public:
 		i[1] = index[1]; 
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
-		if(pix == 0){
+		if(pix <= thd){
 			return true;
 		}
 
@@ -437,7 +435,7 @@ public:
 			return true;
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
-		if(pix == 0){
+		if(pix <= thd){
 			return true;
 		}
 
@@ -447,7 +445,7 @@ public:
 			return true;
 		i[2] = index[2]; 
 		pix = image->GetPixel(i);
-		if(pix == 0){
+		if(pix <= thd){
 			return true;
 		}
 
@@ -457,7 +455,7 @@ public:
 		if(i[2]>max_z)
 			return true;
 		pix = image->GetPixel(i);
-		if(pix == 0){
+		if(pix <= thd){
 			return true;
 		}
 
@@ -467,7 +465,7 @@ public:
 		if(i[2]<0)
 			return true;
 		pix = image->GetPixel(i);
-		if(pix == 0){
+		if(pix <= thd){
 			return true;
 		}
 
@@ -483,7 +481,7 @@ public:
 		it.GoToBegin();
 		while (!it.IsAtEnd()){
 			double val = it.Value();
-			if(val!=0){
+			if(val>thd){
 				ImageType::IndexType index = it.GetIndex();
 				mat[0] += index[0];
 				mat[1] += index[1];
