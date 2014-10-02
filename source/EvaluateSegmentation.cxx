@@ -52,7 +52,7 @@ void usage(int argc, char** argv){
 	std::cout << "\nwhere:" << std::endl;
 	std::cout << "truthPath	=path (or URL) to truth image. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "segmentPath	=path (or URL) to image beeing evaluated. URLs should be enclosed with quotations" << std::endl;
-	std::cout << "-th	=before evaluation convert fuzzy images to binary using threshold" << std::endl;
+	std::cout << "-thd	=before evaluation convert fuzzy images to binary using threshold" << std::endl;
 	std::cout << "-xml	=path to xml file where result should be saved" << std::endl;
 	std::cout << "-nostreaming	=Don't use streaming filter! Streaming filter is used to handle very large images. Use this option with small images (up to 200X200X200 voxels) to avoid time efort related with streaming." << std::endl;
 	std::cout << "-help	=more information" << std::endl;	
@@ -228,7 +228,7 @@ int main(int argc, char** argv)
 			if(default_options.size()>0){
 				for(int i=0; i<default_options.size(); i++){
 					if ( (i + 1) != default_options.size()){ 
-						if (default_options[i] == "-th") {
+						if (default_options[i] == "-thd") {
 							threshold = atof(default_options[i + 1].c_str());
 						}else if (default_options[i] == "-xml") {
 							 targetfile = new char[default_options[i + 1].length()];
