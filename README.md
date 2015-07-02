@@ -125,3 +125,15 @@ truth_landmark_path =path (or URL) to file containing ground truth landmarks. UR
 test_landmark_path =path (or URL) to file containing landmarks to be evaluated. URLs should be enclosed with quotations.
 
 -xml =path to xml file where result should be saved.
+
+3) Evaluation of lesion detection:
+
+USAGE:  
+EvaluateSegmentation -det truth_lesions_path test_lesions_path [-xml output_xml_path]
+
+where:  
+truth_lesions_path =path (or URL) to file containing ground truth lesions. URLs should be enclosed with quotations.
+
+test_lesions_path =path (or URL) to file containing lesions to be evaluated. URLs should be enclosed with quotations.
+
+-xml =path to xml file where result should be saved.
