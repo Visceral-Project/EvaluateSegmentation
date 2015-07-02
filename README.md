@@ -93,8 +93,8 @@ Possible codes for metriclist are:
 		MUTINF: calculate Mutual Information  
 		FALLOUT: calculate Fallout (false positive rate)  
 		COEFVAR: calculate Coefficient of Variation  
-		AVGDIST: calculate Average Distance  
-		HDRFDST: calculate Hausdorff Distance HDRFDST@0.95@ means use 0.95 quantile to avoid outliers. Default is quantile of 1 which  		means exact Hausdorff distance  
+		AVGDIST: calculate Average Distance in voxels 
+		HDRFDST: calculate Hausdorff Distance in voxels HDRFDST@0.95@ means use 0.95 quantile to avoid outliers. Default is quantile of 1 which  		means exact Hausdorff distance  
 		VARINFO: calculate Variation of Information  
 		PROBDST: calculate Probabilistic Distance  
 		MAHLNBS: calculate Mahanabolis Distance  
