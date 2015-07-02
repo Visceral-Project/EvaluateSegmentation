@@ -42,6 +42,8 @@
 #include "Outputter.h"
 #include "Segmentation.h" 
 #include "Localization.h" 
+#include "LesionDetection.h" 
+
 
 
 using namespace std;
@@ -67,13 +69,29 @@ void usage(int argc, char** argv){
 
 	std::cout << "\nExample:\n"<< argv[0]<< " truth.nii segment.nii -use RNDIND,HDRFDST@0.96@,FMEASR@0.5@ -xml result.xml" << std::endl;	
 
-	std::cout << "\n\n2)For Localization:\n\n"  
-		<<argv[0]<< " -loc truthLandmarkPath testLandmarkPath [-xml xmlpath]" << std::endl;
+	std::cout << "\n2)For help on evaluation of landmark, type: " << argv[0] << " -loc \n";
+	std::cout << "3)For help on lesion detection evaluation, type: " << argv[0] << " -det \n\n";
+	std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
+}
+
+void usage_landmark(int argc, char** argv){
+	std::cout << "USAGE for landmark localization:\n"  
+    << argv[0]<< " -loc truthLandmarkPath testLandmarkPath [-xml xmlpath]" << std::endl;
 	std::cout << "\nwhere:" << std::endl;
 	std::cout << "truthLandmarkPath	=path (or URL) to truth localizations. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "testLandmarkPath	=path (or URL) to testlandmarks beeing evaluated. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "-xml	=path to xml file where result should be saved" << std::endl;
+	std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
+}
 
+void usage_detection(int argc, char** argv){
+	std::cout << "USAGE for lesion detection:\n"  
+	<<argv[0]<< " -det truthDetectionPath testDetectionPath  [-mask maskpath] [-xml xmlpath]" << std::endl;
+	std::cout << "\nwhere:" << std::endl;
+	std::cout << "truthDetectionPath	=path (or URL) to truth lesion detection. URLs should be enclosed with quotations" << std::endl;
+	std::cout << "testDetectionPath	=path (or URL) to file with lesion detection being evaluated. URLs should be enclosed with quotations" << std::endl;
+	std::cout << "-mask	=path to a segmentation used as a mask to specify regions considered in the evaluation" << std::endl;
+	std::cout << "-xml	=path to xml file where result should be saved" << std::endl;
 	std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
 }
 
@@ -157,8 +175,17 @@ int main(int argc, char** argv)
     long long time_start= ((double)t*1000)/CLOCKS_PER_SEC;	
 
 	if(argc < 3){
-		usage(argc, argv);
-		return 0;
+		if(argc ==2 && std::string(argv[1])=="-loc"){
+			usage_landmark(argc, argv);
+		}
+		else if(argc ==2 && std::string(argv[1])=="-det"){
+			usage_detection(argc, argv);
+		}
+
+		else{
+		  usage(argc, argv);
+		  return 0;
+		}
 	}
 	else if(std::string(argv[1]) == "-loc"){
 		char* truthfile =  argv[2];
@@ -179,6 +206,53 @@ int main(int argc, char** argv)
 		try 
 		{
 			validateLocalization(truthfile, testfile, targetfile, options);
+		} 
+		catch (itk::ExceptionObject& e)
+		{
+			std::cerr << e << std::endl;
+			return -1;
+		}
+		catch (std::exception& e)
+		{
+			cout << "Exception: " << e.what() << std::endl;
+			return -1;
+		}
+		catch (std::string& s)
+		{
+			cout << "Exception: " << s << std::endl;
+			return -1;
+		}
+		catch (...)
+		{
+			cout << "Unknown exception" << std::endl;
+			return -1;
+		}
+		return 0;
+
+	}
+	else if(std::string(argv[1]) == "-det"){
+		char* truthfile =  argv[2];
+		char* testfile =  argv[3];
+		char* targetfile = NULL;
+		char* maskfile = NULL;
+		char* options = "all";
+		
+		for (int i = 1; i < argc; i++) { 
+			if (std::string(argv[i]) == "-xml") {
+				targetfile = argv[i + 1];
+			}
+			else if (std::string(argv[i]) == "-mask") {
+				maskfile = argv[i + 1];
+			}
+			else if (std::string(argv[i]) == "-use") {
+				options = argv[i + 1];
+			}
+		}
+
+
+		try 
+		{
+			validateLesionDetection(truthfile, testfile, targetfile, maskfile, options);
 		} 
 		catch (itk::ExceptionObject& e)
 		{
