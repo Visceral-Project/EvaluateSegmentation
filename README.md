@@ -20,7 +20,12 @@ limitations under the License.
 ********************************************************************************  
 
 1 Description  
-EvaluateSegmentation is a tool that compares two volumes (a test segmentation and a ground truth segmentation) using 22 different metrics that were selected as a result of a comprehensive research into the metrics used in the medical volume segmentations. EvaluateSegmentation provides the following measures:  
+
+EvaluateSegmentation is a tool that compares two volumes (a test segmentation and a ground truth segmentation) using 22 different metrics that were selected as a result of a comprehensive research into the metrics used in the medical volume segmentations. 
+
+The article "Metrics for evaluating 3D medical image segmentation: analysis, selection, and tool" in the BMC Medical Imaging journal (available as open access here: http://http://www.biomedcentral.com/1471-2342/15/29) provides definitions and a comprehensive analysis of these metrics as well as guidelines for metric selection based on the properties of the segmentations being evaluated and the segmentation goal.
+
+EvaluateSegmentation provides the following measures:  
  
 Similarity  
 1.	Dice Coefficient  
