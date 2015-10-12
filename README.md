@@ -20,7 +20,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and  
 limitations under the License.  
 
-### Citing this Software
+#### Citing this Software
 
 Please cite the following paper to reference this software \[[pdf](http://www.biomedcentral.com/content/pdf/s12880-015-0068-x.pdf)\] \[[bibtex](bibtex.txt)\]:
 
