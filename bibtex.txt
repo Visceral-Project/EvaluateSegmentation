@@ -1,0 +1,9 @@
+@article{TA2015,
+    author = {Abdel Aziz Taha and Allan Hanbury},
+    title = {Metrics for Evaluating 3{D} Medical Image Segmentation: analysis, selection, and tool},
+    journal = {BMC Medical Imaging},
+    year = {2015},
+    volume = {15},
+    pages = {29},
+    month = {August},
+}
