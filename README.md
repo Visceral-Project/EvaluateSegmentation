@@ -1,4 +1,6 @@
 ********************************************************************************
+### License, Copyright, and Authors
+
 EvaluateSegmentation Tool, VISCERAL http://www.visceral.eu  
 VISCERAL received funding from EU FP7, contract 318068   
 Developed by Abdel Aziz Taha (taha@ifs.tuwien.ac.at)   
@@ -10,16 +12,21 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.  
 You may obtain a copy of the License at  
 
-    http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software  
 distributed under the License is distributed on an "AS IS" BASIS,  
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
 See the License for the specific language governing permissions and  
 limitations under the License.  
-********************************************************************************  
 
-1 Description  
+### Citing this software
+
+Please cite the following paper to reference this software [pdf](http://www.biomedcentral.com/content/pdf/s12880-015-0068-x.pdf) [bibtex](bibtex.txt):
+
+Abdel Aziz Taha and Allan Hanbury. Metrics for evaluating 3D medical image segmentation: analysis, selection, and tool. BMC Medical Imaging, 15:29, August 2015.
+
+### Description  
 
 EvaluateSegmentation is a tool that compares two volumes (a test segmentation and a ground truth segmentation) using 22 different metrics that were selected as a result of a comprehensive research into the metrics used in the medical volume segmentations. 
 
@@ -55,7 +62,7 @@ Classic measures
 21.	Accuracy  
 22.	Fallout (false positive rate)  
 
-2 Supported Images  
+### Supported Images  
 
 EvaluateSegmentation is built on the ITK Library thus it supports all 2D/3D file formats   
 that are supported by ITK, e.g .nii, .mha, etc. The two Images should however have the  
@@ -64,7 +71,7 @@ where a voxel value can be either zero (background) or a value between zero and
 one [0,1] that denotes the fuzzy membership or the probability that the  
 corresponding voxel belongs to the label.  
 
-3 Syntax
+### Syntax
 
 1) Evaluation of volume segmentations:
 
