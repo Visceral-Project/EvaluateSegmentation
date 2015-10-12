@@ -24,7 +24,7 @@ limitations under the License.
 
 Please cite the following paper to reference this software [pdf](http://www.biomedcentral.com/content/pdf/s12880-015-0068-x.pdf) [bibtex](bibtex.txt):
 
-Abdel Aziz Taha and Allan Hanbury. Metrics for evaluating 3D medical image segmentation: analysis, selection, and tool. BMC Medical Imaging, 15:29, August 2015.
+*Abdel Aziz Taha and Allan Hanbury. Metrics for evaluating 3D medical image segmentation: analysis, selection, and tool. BMC Medical Imaging, 15:29, August 2015.*
 
 #### Description  
 
