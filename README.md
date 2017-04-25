@@ -48,13 +48,13 @@ Classic measures
 19.	Precision  
 20.	F-Measure  
 21.	Accuracy  
-22.	Fallout (false positive rate)
-23. true positives (in voxel)
-24. true negatives (in voxel)
-25. false positives (in voxel)
-26. false negatives (in voxel)
-27. segmented volume (optionally in voxel or milliliter)
-28. reference volume (optionally in voxel or milliliter)
+22.	Fallout (false positive rate)  
+23.	true positives (in voxel)  
+24.	true negatives (in voxel)  
+25.	false positives (in voxel)  
+26.	false negatives (in voxel)  
+27.	segmented volume (optionally in voxel or milliliter)  
+28.	reference volume (optionally in voxel or milliliter)  
 
 
 2 Supported Images  
@@ -156,6 +156,6 @@ USAGE:
 
 The builds provided in the folder builds are not necessarily up to date for all OS. At the moment, we have only support for Windows and Ubunto. For other OS, the builds are either not available or not up to date. In this case, please use the source code to make your own build for your OS. Here are some links you may need for build the EvaluateSegmentation tool:
 
-ITK Library: https://itk.org/itkindex.html
+ITK Library: https://itk.org/itkindex.html  
 CMake Framework: https://cmake.org/
 
