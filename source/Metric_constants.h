@@ -44,7 +44,7 @@ MetricInfo* metricInfo;
 
 enum MetricId  {DICE, JACRD, AUC, KAPPA, RNDIND, ADJRIND, ICCORR, VOLSMTY, MUTINF, 
                  MAHLNBS, AVGDIST, HDRFDST, VARINFO, GCOERR, PROBDST,       
-                 SNSVTY, SPCFTY, PRCISON,  FMEASR, ACURCY, FALLOUT
+                 SNSVTY, SPCFTY, PRCISON,  FMEASR, ACURCY, FALLOUT, TP, FP, TN, FN, REFVOL, SEGVOL
 #ifdef _DEBUG
 				 , MEANTOMEAN ,HDRFDSTITK, HDRFDSTNAIVE, MAHAVDIST, TEST, AVGDISTITK
 #endif
@@ -223,7 +223,56 @@ void initMetricInfo(){
   info->help ="Fallout (false positive rate)";
   info->similarity =false;
   info->testmetric =false;
+  
+  info = &metricInfo[TP];
+  info->metrId = "TP";
+  info->metrSymb="TP";
+  info->metrInfo ="true positive"; 
+  info->help ="true positive";
+  info->similarity =true;
+  info->testmetric =false;
+  
+  info = &metricInfo[TN];
+  info->metrId = "TN";
+  info->metrSymb="TN";
+  info->metrInfo ="true negative"; 
+  info->help ="true negative";
+  info->similarity =true;
+  info->testmetric =false;
 
+  info = &metricInfo[FP];
+  info->metrId = "FP";
+  info->metrSymb="FP";
+  info->metrInfo ="false positive"; 
+  info->help ="false positive";
+  info->similarity =true;
+  info->testmetric =false;
+
+  info = &metricInfo[FN];
+  info->metrId = "FN";
+  info->metrSymb="FN";
+  info->metrInfo ="false negative"; 
+  info->help ="false negative";
+  info->similarity =true;
+  info->testmetric =false;
+
+  info = &metricInfo[SEGVOL];
+  info->metrId = "SEGVOL";
+  info->metrSymb="SEGVOL";
+  info->metrInfo ="segmented volume"; 
+  info->help ="segmented volume";
+  info->similarity =true;
+  info->testmetric =false;
+  
+   info = &metricInfo[REFVOL];
+  info->metrId = "REFVOL";
+  info->metrSymb="REFVOL";
+  info->metrInfo ="reference volume"; 
+  info->help ="reference volume";
+  info->similarity =true;
+  info->testmetric =false;
+
+  
 #ifdef _DEBUG
   info = &metricInfo[HDRFDSTITK];
   info->metrId = "HDRFDSTITK";

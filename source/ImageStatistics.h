@@ -45,6 +45,11 @@ public:
 	int max_x_m;
 	int max_y_m;
 	int max_z_m;
+
+    double vspx; // Voxelspacing x
+    double vspy; // Voxelspacing y
+    double vspz; // Voxelspacing z
+
 	~ImageStatistics(){
 
 	}
@@ -54,6 +59,22 @@ public:
 		typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
 		FixedIteratorType fixedIt(fixedImage, fixedImage->GetRequestedRegion());
 		MovingIteratorType movingIt(movingImage, movingImage->GetRequestedRegion());
+
+
+        const ImageType::SpacingType & ImageSpacing = fixedImage->GetSpacing();
+		this->vspx = ImageSpacing[0];
+		this->vspy = ImageSpacing[1];
+		this->vspz = ImageSpacing[2];
+
+		if(this->vspx==0){
+			this->vspx=1;
+		}
+		if(this->vspy==0){
+			this->vspy=1;
+		}
+		if(this->vspz==0){
+			this->vspz=1;
+		}
 
 		double thd = 0;
 		if(!fuzzy && threshold!=-1){

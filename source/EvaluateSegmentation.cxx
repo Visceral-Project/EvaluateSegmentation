@@ -50,14 +50,15 @@ using namespace std;
 
 void usage(int argc, char** argv){
 	std::cout << "\nUSAGE:\n\n1) For volume segmentation:\n\n"  
-		<<argv[0]<< " truthPath segmentPath [-thd threshold] [-xml xmlpath] [-use all|fast|DICE,JACRD,....]" << std::endl;
+		<<argv[0]<< " groundtruthPath segmentPath [-thd threshold] [-xml xmlpath] [-unit millimeter|voxel] [-use all|fast|DICE,JACRD,....]" << std::endl;
 	std::cout << "\nwhere:" << std::endl;
-	std::cout << "truthPath	=path (or URL) to truth image. URLs should be enclosed with quotations" << std::endl;
+	std::cout << "groundtruthPath	=path (or URL) to groundtruth image. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "segmentPath	=path (or URL) to image beeing evaluated. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "-thd	=before evaluation convert fuzzy images to binary using threshold" << std::endl;
 	std::cout << "-xml	=path to xml file where result should be saved" << std::endl;
 	std::cout << "-nostreaming	=Don't use streaming filter! Streaming filter is used to handle very large images. Use this option with small images (up to 200X200X200 voxels) to avoid time efort related with streaming." << std::endl;
 	std::cout << "-help	=more information" << std::endl;	
+	std::cout << "-unit	=specify whether millimeter or voxel to be used as a unit for distances and  volumes (default is voxel)" << std::endl;
 	std::cout << "-use	=the metrics to be used. Note that additional options can be given between two @ characters:\n" << std::endl;
 	std::cout << "	all	:use all available metrics (default)" << std::endl;
 	for(int i=0 ; i< METRIC_COUNT ; i++){
@@ -67,7 +68,7 @@ void usage(int argc, char** argv){
 	}
 	std::cout << "\n-default or -def =reads default options from a file default.txt in the current folder. All the options above except image filenames can be used as defaults. Default options are overridden by options given in the command line." << std::endl;
 
-	std::cout << "\nExample:\n"<< argv[0]<< " truth.nii segment.nii -use RNDIND,HDRFDST@0.96@,FMEASR@0.5@ -xml result.xml" << std::endl;	
+	std::cout << "\nExample:\n"<< argv[0]<< " groundtruth.nii segment.nii -use RNDIND,HDRFDST@0.96@,FMEASR@0.5@ -xml result.xml" << std::endl;	
 
 	std::cout << "\n2)For help on evaluation of landmark, type: " << argv[0] << " -loc \n";
 	std::cout << "3)For help on lesion detection evaluation, type: " << argv[0] << " -det \n\n";
@@ -76,9 +77,9 @@ void usage(int argc, char** argv){
 
 void usage_landmark(int argc, char** argv){
 	std::cout << "USAGE for landmark localization:\n"  
-    << argv[0]<< " -loc truthLandmarkPath testLandmarkPath [-xml xmlpath]" << std::endl;
+    << argv[0]<< " -loc groundtruthLandmarkPath testLandmarkPath [-xml xmlpath]" << std::endl;
 	std::cout << "\nwhere:" << std::endl;
-	std::cout << "truthLandmarkPath	=path (or URL) to truth localizations. URLs should be enclosed with quotations" << std::endl;
+	std::cout << "groundtruthLandmarkPath	=path (or URL) to groundtruth localizations. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "testLandmarkPath	=path (or URL) to testlandmarks beeing evaluated. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "-xml	=path to xml file where result should be saved" << std::endl;
 	std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
@@ -86,9 +87,9 @@ void usage_landmark(int argc, char** argv){
 
 void usage_detection(int argc, char** argv){
 	std::cout << "USAGE for lesion detection:\n"  
-	<<argv[0]<< " -det truthDetectionPath testDetectionPath  [-mask maskpath] [-xml xmlpath]" << std::endl;
+	<<argv[0]<< " -det groundtruthDetectionPath testDetectionPath  [-mask maskpath] [-xml xmlpath]" << std::endl;
 	std::cout << "\nwhere:" << std::endl;
-	std::cout << "truthDetectionPath	=path (or URL) to truth lesion detection. URLs should be enclosed with quotations" << std::endl;
+	std::cout << "groundtruthDetectionPath	=path (or URL) to truth lesion detection. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "testDetectionPath	=path (or URL) to file with lesion detection being evaluated. URLs should be enclosed with quotations" << std::endl;
 	std::cout << "-mask	=path to a segmentation used as a mask to specify regions considered in the evaluation" << std::endl;
 	std::cout << "-xml	=path to xml file where result should be saved" << std::endl;
@@ -188,7 +189,7 @@ int main(int argc, char** argv)
 		}
 	}
 	else if(std::string(argv[1]) == "-loc"){
-		char* truthfile =  argv[2];
+		char* groundtruthfile =  argv[2];
 		char* testfile =  argv[3];
 		char* targetfile = NULL;
 		char* options = "all";
@@ -205,7 +206,7 @@ int main(int argc, char** argv)
 
 		try 
 		{
-			validateLocalization(truthfile, testfile, targetfile, options);
+			validateLocalization(groundtruthfile, testfile, targetfile, options);
 		} 
 		catch (itk::ExceptionObject& e)
 		{
@@ -231,7 +232,7 @@ int main(int argc, char** argv)
 
 	}
 	else if(std::string(argv[1]) == "-det"){
-		char* truthfile =  argv[2];
+		char* groundtruthfile =  argv[2];
 		char* testfile =  argv[3];
 		char* targetfile = NULL;
 		char* maskfile = NULL;
@@ -252,7 +253,7 @@ int main(int argc, char** argv)
 
 		try 
 		{
-			validateLesionDetection(truthfile, testfile, targetfile, maskfile, options);
+			validateLesionDetection(groundtruthfile, testfile, targetfile, maskfile, options);
 		} 
 		catch (itk::ExceptionObject& e)
 		{
@@ -278,14 +279,15 @@ int main(int argc, char** argv)
 
 	}
 	else { 
-		char* truthfile =  argv[1];
+		char* groundtruthfile =  argv[1];
 		char* testfile =  argv[2];
 		char* targetfile = NULL;
 		char* options = "all";
+		char* unit = "voxel";
 		double threshold = -1;
 		bool use_default_config =false;
 		bool useStreamingFilter=true;
-		if(is2Dimage(truthfile) && is2Dimage(testfile)){
+		if(is2Dimage(groundtruthfile) && is2Dimage(testfile)){
 		    useStreamingFilter=false;
 		}
 		for (int i = 1; i < argc; i++) { 
@@ -325,6 +327,9 @@ int main(int argc, char** argv)
 				}else if (std::string(argv[i]) == "-use") {
 					options = argv[i + 1];
 				}
+				else if(std::string(argv[i]) == "-unit"){
+					unit = argv[i + 1];
+				}
 			}
 			if (std::string(argv[i]) == "-def" || std::string(argv[i]) == "-default") {
 				use_default_config = true;
@@ -348,7 +353,7 @@ int main(int argc, char** argv)
 
 		try 
 		{
-			validateImage(truthfile, testfile, threshold, targetfile, options, time_start, useStreamingFilter);
+			validateImage(groundtruthfile, testfile, threshold, targetfile, options, unit, time_start, useStreamingFilter);
 		} 
 		catch (itk::ExceptionObject& e)
 		{

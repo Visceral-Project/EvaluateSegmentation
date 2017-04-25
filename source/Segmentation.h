@@ -83,10 +83,15 @@ const std::string nooption = "NOOPTION";
 ImageType::Pointer loadImage(const char* filename,  bool useStreamingFilter);
 
 
-int validateImage(const char* f1, const char* f2, double threshold, const char* targetFile, char *options, long long int time_start, bool useStreamingFilter)
+int validateImage(const char* f1, const char* f2, double threshold, const char* targetFile, char *options, char* unit, long long int time_start, bool useStreamingFilter)
 {
 
-
+    bool use_millimeter=false;
+	string units = unit;
+	int pos = units.find("millimeter");
+	if(pos != string::npos){
+	    use_millimeter = true;
+	}
 	VoxelPreprocessor *voxelPreprocessor;
 	ImageStatistics *imagestatistics;
 
@@ -164,11 +169,17 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 		std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
 		pushTotalExecutionTime(total_milliseconds, xmlObject);
 		pushDimentions(imagestatistics->max_x_f, imagestatistics->max_y_f, imagestatistics->max_z_f, xmlObject);
+		
 		SaveXmlObject(xmlObject, targetFile);
 		return EXIT_SUCCESS;
 	}
 #endif
 
+
+  
+	//pushUnit(use_millimeter, xmlObject);
+	
+       
 
 	std::cout << "Similarity:" << std::endl;
 	double value=0;
@@ -176,21 +187,21 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 	if(shouldUse(metricId, options)){
 		DiceCoefficientMetric *diceCoefficient = new DiceCoefficientMetric(contingenceTable, fuzzy, threshold);
 		value = diceCoefficient->CalcDiceCoeff();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	metricId = JACRD;
 	if(shouldUse(metricId, options)){
 		JaccardCoefficientMetric *jaccardCoefficient = new JaccardCoefficientMetric(contingenceTable, fuzzy, threshold);
 		value =  jaccardCoefficient->CalcJaccardCoeff();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	ClassicMeasures *classicMeasures = new ClassicMeasures(contingenceTable, fuzzy, threshold);
 	metricId = AUC;
 	if(shouldUse(metricId, options)){
 		value =  classicMeasures->CalcAUC();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 
@@ -198,19 +209,19 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 	if(shouldUse(metricId, options)){
 		CohinKappaMetric *cohinKappa = new CohinKappaMetric(contingenceTable, fuzzy, threshold);
 		value =  cohinKappa->CalcCohenKappa();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	metricId = RNDIND;
 	RandIndexMetric *randIndex = new RandIndexMetric(contingenceTable, fuzzy, threshold);
 	if(shouldUse(metricId, options)){
 		value =  randIndex->CalcRandIndex();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 	metricId = ADJRIND;
 	if(shouldUse(metricId, options)){
 		value =  randIndex->CalcAdjustedRandIndex();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 
@@ -218,21 +229,21 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 	if(shouldUse(metricId, options)){
 		InterclassCorrelationMetric *interclassCorrelation = new InterclassCorrelationMetric(voxelPreprocessor, fuzzy, threshold);
 		value =  interclassCorrelation->CalcInterClassCorrelationCoeff();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	metricId = VOLSMTY;
 	if(shouldUse(metricId, options)){
 		VolumeSimilarityCoefficient *volumetricSimilarity = new VolumeSimilarityCoefficient(contingenceTable, fuzzy, threshold);
 		value =  volumetricSimilarity->CalcVolumeSimilarityCoefficient();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	metricId = MUTINF;
 	if(shouldUse(metricId, options)){
 		MutualInformationMetric *mutualInformation = new MutualInformationMetric(contingenceTable, fuzzy, threshold);
 		value =  mutualInformation->CalcMutualInformation();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 
@@ -258,38 +269,49 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 			std::istringstream stm(quantile_s);
 			stm>>quantile;
 		}
-		HausdorffDistanceMetric *hausdorffDistanceMetric = new HausdorffDistanceMetric(truthImg, testImg, fuzzy, threshold);
+		HausdorffDistanceMetric *hausdorffDistanceMetric = new HausdorffDistanceMetric(truthImg, testImg, fuzzy, threshold, use_millimeter);  
 		value =  hausdorffDistanceMetric->CalcHausdorffDistace(quantile);
 	    t = clock();
         long long s2= ((double)t*1000)/CLOCKS_PER_SEC;	
 
 	int milliseconds =  (s2-s1);
-		pushValue(metricId, value, milliseconds, xmlObject);
+	    if(use_millimeter){
+		   pushValue(metricId, value, milliseconds, xmlObject, "millimeter");
+	    }
+		else{
+		    pushValue(metricId, value, milliseconds, xmlObject, "voxel");
+		}
 	}
 
 	metricId = AVGDIST;
 	if(shouldUse(metricId, options)){
 	    clock_t t = clock();
         long long s1= ((double)t*1000)/CLOCKS_PER_SEC;	
-		AverageDistanceMetric *averageDistanceMetric = new AverageDistanceMetric(truthImg, testImg, fuzzy, threshold);
+		AverageDistanceMetric *averageDistanceMetric = new AverageDistanceMetric(truthImg, testImg, fuzzy, threshold, use_millimeter);
 		value =  averageDistanceMetric->CalcAverageDistace(false);
 	    t = clock();
         long long s2= ((double)t*1000)/CLOCKS_PER_SEC;	
 		int milliseconds =  (s2-s1);
-		pushValue(metricId, value, milliseconds, xmlObject);
+		if(use_millimeter){
+		    pushValue(metricId, value, milliseconds, xmlObject, "millimeter");
+		}
+		else{
+		    pushValue(metricId, value, milliseconds, xmlObject, "voxel");
+		}
+		
 	}
 
 	metricId = MAHLNBS;
 	if(shouldUse(metricId, options)){
 		MahalanobisDistanceMetric *mahalanobisDistance = new MahalanobisDistanceMetric(truthImg, testImg, voxelPreprocessor, fuzzy, threshold);
 		value =  mahalanobisDistance->CalcMahalanobisDistace();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 	metricId = VARINFO;
 	if(shouldUse(metricId, options)){
 		VariationOfInformationMetric *variationOfInformation = new VariationOfInformationMetric(contingenceTable, fuzzy, threshold);
 		value =  variationOfInformation->CalcVariationOfInformation();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 
@@ -298,14 +320,14 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 
 		GlobalConsistencyError *globalConsistencyError = new GlobalConsistencyError(contingenceTable, fuzzy, threshold);
 		value = globalConsistencyError->CalcGlobalConsistencyError();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	metricId = PROBDST;
 	if(shouldUse(metricId, options)){
 		ProbabilisticDistanceMetric *probabilisticDistance = new ProbabilisticDistanceMetric(voxelPreprocessor, fuzzy, threshold);
 		value =  probabilisticDistance->CalcJProbabilisticDistance();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 
@@ -314,21 +336,21 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 	metricId = SNSVTY;
 	if(shouldUse(metricId, options)){
 		value =  classicMeasures->CalcSensitivity();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 
 	metricId = SPCFTY;
 	if(shouldUse(metricId, options)){
 		value =  classicMeasures->CalcSpecificity();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 
 	metricId = PRCISON;
 	if(shouldUse(metricId, options)){
 		value =  classicMeasures->CalcPrecision();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	metricId = FMEASR;
@@ -340,28 +362,78 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 			stm>>beta;
 		}
 		value =  classicMeasures->CalcFMeasure(beta);
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 	metricId = ACURCY;
 	if(shouldUse(metricId, options)){
 		value =  classicMeasures->CalcAccuracy();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
 	metricId = FALLOUT;
 	if(shouldUse(metricId, options)){
 		value =  classicMeasures->CalcFallout();
-		pushValue(metricId, value, xmlObject);
+		pushValue(metricId, value, xmlObject,false, NULL);
 	}
 
+	metricId = TP;
+	if(shouldUse(metricId, options)){
+		value =  classicMeasures->getTP();
+		pushValue(metricId, value, xmlObject,true, "voxel");
+	}
 
+	metricId = FP;
+	if(shouldUse(metricId, options)){
+		value =  classicMeasures->getFP();
+		pushValue(metricId, value, xmlObject,true, "voxel");
+	}
+
+	metricId = TN;
+	if(shouldUse(metricId, options)){
+		value =  classicMeasures->getTN();
+		pushValue(metricId, value, xmlObject,true, "voxel");
+	}
+
+	metricId = FN;
+	if(shouldUse(metricId, options)){
+		value =  classicMeasures->getFN();
+		pushValue(metricId, value, xmlObject,true, "voxel");
+	}
+
+	metricId = REFVOL;
+	if(shouldUse(metricId, options)){
+		if(use_millimeter){
+			value =  classicMeasures->CalcReferenceVolumeInMl();
+		    pushValue(REFVOL, value, xmlObject,false, "milliliter");
+		}
+		else{
+			value =  classicMeasures->CalcReferenceVolumeInVoxel();
+		    pushValue(REFVOL, value, xmlObject,true, "voxel");
+		}
+		
+	}
+	
+	metricId = SEGVOL;
+	if(shouldUse(metricId, options)){
+		if(use_millimeter){
+			value =  classicMeasures->CalcSegmentedVolumeInMl();
+		    pushValue(SEGVOL, value, xmlObject,false, "milliliter");
+		}
+		else{
+			value =  classicMeasures->CalcSegmentedVolumeInVoxel();
+		    pushValue(SEGVOL, value, xmlObject,true, "voxel");
+		}
+		
+	}
+	
+	
 	clock_t t = clock();
     long long time_end= ((double)t*1000)/CLOCKS_PER_SEC;	
 	int total_milliseconds =  (time_end-time_start);
 	std::cout << "\nTotal execution time= "<< total_milliseconds << " milliseconds\n"<< std::endl;
 	std::cout << "\n  ---** VISCERAL 2013, www.visceral.eu **---\n" << std::endl;	
 	pushTotalExecutionTime(total_milliseconds, xmlObject);
-	pushDimentions(imagestatistics->max_x_f, imagestatistics->max_y_f, imagestatistics->max_z_f, xmlObject);
+	pushDimentions(imagestatistics->max_x_f, imagestatistics->max_y_f, imagestatistics->max_z_f, imagestatistics->vspx, imagestatistics->vspy, imagestatistics->vspz, xmlObject);
 	SaveXmlObject(xmlObject, targetFile);
 
 	return EXIT_SUCCESS;

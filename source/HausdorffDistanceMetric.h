@@ -49,6 +49,9 @@ typedef struct VoxelInfo{
 private:
 	ImageType *fixedImage;
 	ImageType *movingImage;
+
+  
+  
 	bool fuzzy;
 	double threshold;
 	bool empty_f;
@@ -70,16 +73,42 @@ public:
     double sum;
 	double max_dist;
 	double min_dist;
-
+    double spx;
+    double spy;
+    double spz;
+	   
 	~HausdorffDistanceMetric(){
 
 	}
 
-	HausdorffDistanceMetric(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold){
+	HausdorffDistanceMetric(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold, bool millimeter){
 		this->fixedImage = fixedImage;
 		this->movingImage = movingImage;
 		this->fuzzy = fuzzy;
 		this->threshold = threshold;
+		const ImageType::SpacingType & ImageSpacing = fixedImage->GetSpacing();
+		if(millimeter){
+           this->spx = ImageSpacing[0];
+           this->spy = ImageSpacing[1];
+           this->spz = ImageSpacing[2];
+		   if(this->spx==0){
+			   this->spx=1;
+		   }
+		   if(this->spy==0){
+			  this->spy=1;
+		   }
+		   if(this->spz==0){
+			  this->spz=1;
+		   }
+
+		}
+		else{
+           this->spx = 1;
+           this->spy = 1;
+           this->spz = 1;
+		
+		}
+	   
 	}
 
 
@@ -101,7 +130,7 @@ public:
 
 	double calc0(ImageType *image1, ImageType *image2, std::vector<double> *distances){
 
-	    double thd = 0;
+        double thd = 0;
 		if(!fuzzy && threshold!=-1){
 		    thd = threshold*PIXEL_VALUE_RANGE_MAX;
 		}
@@ -238,7 +267,11 @@ public:
 
 				 for(int x=0; x < numberRetr_1 ; x++){
 					 VoxelInfo testpoint = retrievedVoxels_1[x];    
- 			         double dist =std::sqrt((double)((testpoint.x-p.x)*(testpoint.x-p.x) + (testpoint.y-p.y)*(testpoint.y-p.y) + (testpoint.z-p.z)*(testpoint.z-p.z)));
+ 			         double dist =std::sqrt((double)(
+					     (testpoint.x-p.x)*(testpoint.x-p.x) *this->spx*this->spx
+					   + (testpoint.y-p.y)*(testpoint.y-p.y) *this->spy*this->spy
+					   + (testpoint.z-p.z)*(testpoint.z-p.z) *this->spz*this->spz
+					   ));
 					 min = std::min(min, dist);
 					 if(dist < globalmax){
 					     break;
@@ -264,8 +297,14 @@ public:
 				VoxelInfo p = trueVoxels_2[index_2];
 				double min = maxValue;
 				 for(int x=0; x < numberRetr_2 ; x++){
-					 VoxelInfo testpoint = retrievedVoxels_2[x];    
- 			         double dist =std::sqrt((double)((testpoint.x-p.x)*(testpoint.x-p.x) + (testpoint.y-p.y)*(testpoint.y-p.y) + (testpoint.z-p.z)*(testpoint.z-p.z)));
+					 VoxelInfo testpoint = retrievedVoxels_2[x];  
+                      double dist =std::sqrt((double)(
+					     (testpoint.x-p.x)*(testpoint.x-p.x) *this->spx*this->spx
+					   + (testpoint.y-p.y)*(testpoint.y-p.y) *this->spy*this->spy
+					   + (testpoint.z-p.z)*(testpoint.z-p.z) *this->spz*this->spz
+					   ));
+					   
+					   
 					 min = std::min(min, dist);
 					 if(dist < globalmax){
 					     break;
@@ -286,33 +325,7 @@ public:
 		return globalmax;
 	}
 
-	double s1(double s01, double max, int maxMax, VoxelInfo p, VoxelInfo *comparretriecedVoxels , int step){
-		double min=maxValue;
-		s01 = maxValue;
-		int x = 0;
-		for(int j=0 ; j< maxMax && s01 > max; j=j+step){
-			VoxelInfo testpoint = comparretriecedVoxels[j];    
-			double dist =std::sqrt((double)((testpoint.x-p.x)*(testpoint.x-p.x) + (testpoint.y-p.y)*(testpoint.y-p.y) + (testpoint.z-p.z)*(testpoint.z-p.z)));
-			x++;
-			if(dist<max){
-				max_tries = std::max(x,max_tries);
-                //std::cout << x<< std::endl;
-				return -1;
-
-			}
-			else{
-			   min = std::min(dist, min);
-			}
-			
-		}
-
-		if(step > 1){
-			//std::cout << "--------->" << step << std::endl;
-		   return -2;
-		}
-		return min;
-	}
-
+	
 
 	int GetFixedImageVoxelCount(){
 		return numberElements_f;

@@ -107,7 +107,7 @@ void  pushTotalExecutionTime(long time,  itk::DOMNode::Pointer xmlObject){
 	}
 }
 
-void  pushDimentions(int max_x, int max_y, int max_z,  itk::DOMNode::Pointer xmlObject){
+void  pushDimentions(int max_x, int max_y, int max_z, double vsp_x, double vsp_y, double vsp_z, itk::DOMNode::Pointer xmlObject){
 	if(xmlObject != (itk::DOMNode::Pointer)NULL){
 		char* name="dimention";
 		itk::DOMNode* node = dOMObject->GetChild(name);
@@ -125,9 +125,17 @@ void  pushDimentions(int max_x, int max_y, int max_z,  itk::DOMNode::Pointer xml
 		sprintf(val, "%d", max_z);
 		node->SetAttribute( "max_z", val );
 
+		sprintf(val, "%.6f", vsp_x);
+		node->SetAttribute( "voxelspacing_x", val );
+
+		sprintf(val, "%.6f", vsp_y);
+		node->SetAttribute( "voxelspacing_y", val );
+
+		sprintf(val, "%.6f", vsp_z);
+		node->SetAttribute( "voxelspacing_z", val );
+
 	}
 }
-
 
 void SaveXmlObject(itk::DOMNode::Pointer xmlObject, const char* targtfile){
 	if(targtfile != NULL && xmlObject != (itk::DOMNode::Pointer)NULL){
@@ -139,11 +147,33 @@ void SaveXmlObject(itk::DOMNode::Pointer xmlObject, const char* targtfile){
 
 }
 
+/*
+void pushUnit(bool use_millimeter, itk::DOMNode::Pointer xmlObject){
+	if(use_millimeter){
+		std::cout << std::endl << "Units: \t millimeter for HDRFDST and AVGDIST, millliter for REFVOL and SEGVOL, otherwise voxel"<< std::endl;
+	}
+	else{
+		std::cout << std::endl << "Units: \t voxel"<< std::endl;
+	}
+}
+*/
 
-void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject){
+void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject, bool asInteger, char* unit){
 	char val [50];
-	sprintf(val, "%.6f", value);
-	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << " "<< std::endl;
+        if(asInteger){
+	  sprintf(val, "%.0f", value);
+        }
+        else{
+	  sprintf(val, "%.6f", value);
+        }
+
+    char unit_s[50];
+	if(unit != NULL)
+	    sprintf(unit_s, " (in %s)", unit);
+	else
+		sprintf(unit_s, " %s", "");
+
+	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << unit_s << std::endl;
 	if(xmlObject != (itk::DOMNode::Pointer)NULL){
 		itk::DOMNode* metricnode = AddNodeWithAttributeIfNotExists((itk::DOMNode*)xmlObject, "metrics", NULL, NULL);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "name", metricInfo[id].metrInfo);
@@ -151,21 +181,28 @@ void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject){
 		const char* type = metricInfo[id].similarity?"similarity":"distance";
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "type",  type);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "value", val);
+		if(unit != NULL){
+ 	       AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "unit", unit);
+		}
 	}
 
 }
 
 
-void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::Pointer xmlObject){
+void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::Pointer xmlObject, char* unit){
 	char val [50];
 	char exect [50];
 	sprintf(val, "%.6f", value);
-	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo;
-#ifdef _DEBUG 
-	sprintf(exect, "%.0f", executiontime);
-	std::cout << " (exec time: " << exect<< " ms)" << std::endl;
-#endif
-	std::cout << std::endl;
+	
+	char unit_s[50];
+	if(unit != NULL)
+	    sprintf(unit_s, " (in %s)", unit);
+	else
+		sprintf(unit_s, " %s", "");
+
+
+	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << unit_s << std::endl;
+
 	if(xmlObject != (itk::DOMNode::Pointer)NULL){
 		itk::DOMNode* metricnode = AddNodeWithAttributeIfNotExists((itk::DOMNode*)xmlObject, "metrics", NULL, NULL);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "name", metricInfo[id].metrInfo);
@@ -176,6 +213,10 @@ void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::P
 
 		sprintf(exect, "%.0f", executiontime);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "executiontime", exect);
+
+		if(unit != NULL){
+ 	       AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "unit", unit);
+		}
 	}
 
 }

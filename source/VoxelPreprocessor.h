@@ -44,12 +44,23 @@ public:
 	int num_intersection;
 	double mean_f;
 	double mean_m;
+	
+    double vspx; // Voxelspacing x
+    double vspy; // Voxelspacing y
+    double vspz; // Voxelspacing z
+
 	~VoxelPreprocessor(){
 
 	}
 	VoxelPreprocessor(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold, ImageStatistics *imagestatistics){
+		
 		typedef itk::ImageRegionConstIterator<ImageType> FixedIteratorType;
 		typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
+		
+	    const ImageType::SpacingType & ImageSpacing = fixedImage->GetSpacing();
+		this->vspx = imagestatistics->vspx;
+		this->vspy = imagestatistics->vspy;
+		this->vspz = imagestatistics->vspz;
 		
 		this->numberElements_f = imagestatistics->numberElements_f;
 		this->numberElements_m = imagestatistics->numberElements_m;
@@ -60,6 +71,9 @@ public:
 		FixedIteratorType fixedIt(fixedImage, fixedImage->GetRequestedRegion());
 
 		MovingIteratorType movingIt(movingImage, movingImage->GetRequestedRegion());
+		
+		
+		
 
 		int ind=0;
 		double sum_f = 0;

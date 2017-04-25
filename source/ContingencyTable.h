@@ -52,6 +52,10 @@ public:
 	double c;
 	double d;
 	double n;
+	
+     double vspx; // Voxelspacing x
+    double vspy; // Voxelspacing y
+    double vspz; // Voxelspacing z
 	typedef itk::ImageRegionConstIterator<ImageType> FixedIteratorType;
 	typedef itk::ImageRegionConstIterator<ImageType> MovingIteratorType;
 	~ContingencyTable(){
@@ -65,6 +69,10 @@ public:
 		numberElements_f = voxelprocesser->numberElements_f;
 		numberElements_m = voxelprocesser->numberElements_m;
 
+		this->vspx = voxelprocesser->vspx;
+		this->vspy = voxelprocesser->vspy;
+		this->vspz = voxelprocesser->vspz;
+		
 		double sum_f = 0;
 		double sum_m = 0;
 		tn = 0;

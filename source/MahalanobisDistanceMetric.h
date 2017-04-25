@@ -73,8 +73,8 @@ public:
 	}
 
 	double CalcMahalanobisDistace(){
-		IteratorType fixedIt(fixedImage, fixedImage->GetRequestedRegion());
-		IteratorType movingIt(movingImage, movingImage->GetRequestedRegion());
+		IteratorType fixedIt(fixedImage, fixedImage -> GetRequestedRegion());
+		IteratorType movingIt(movingImage, movingImage -> GetRequestedRegion());
 		long int len_f=getImageSize(fixedIt);
 		long int len_m=getImageSize(movingIt);
 		bool image_2d = Is2DImage(fixedIt);

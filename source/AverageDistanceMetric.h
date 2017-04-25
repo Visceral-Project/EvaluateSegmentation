@@ -47,6 +47,10 @@ class AverageDistanceMetric
 	int max_x;
 	int max_y;
 	int max_z;
+	
+    double spx;
+    double spy;
+    double spz;
 
 	typedef struct VoxelInfo{
 		int x;
@@ -85,7 +89,7 @@ public:
 
 	}
 
-	AverageDistanceMetric(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold){
+	AverageDistanceMetric(ImageType *fixedImage, ImageType *movingImage, bool fuzzy, double threshold, bool millimeter){
 		this->fixedImage = fixedImage;
 		this->movingImage = movingImage;
 		this->fuzzy = fuzzy;
@@ -96,6 +100,29 @@ public:
 		}
 		else{
 		    this->thd = 0.5*PIXEL_VALUE_RANGE_MAX;
+		}
+		
+		const ImageType::SpacingType & ImageSpacing = fixedImage->GetSpacing();
+		if(millimeter){
+           spx = ImageSpacing[0];
+           spy = ImageSpacing[1];
+           spz = ImageSpacing[2];
+		   if(spx==0){
+			   spx=1;
+		   }
+		   if(spy==0){
+			  spy=1;
+		   }
+		   if(spz==0){
+			  spz=1;
+		   }
+
+		}
+		else{
+           spx = 1;
+           spy = 1;
+           spz = 1;
+		
 		}
 
 	}
@@ -310,7 +337,14 @@ public:
 							//std::cout << " size: "<< size<< std::endl;
 							for(int i=0; i< size;i++){
 								VoxelInfo p2 = gc->voxels[i];
-								double dist = (p2.x-x)*(p2.x-x) + (p2.y-y)*(p2.y-y) + (p2.z-z)*(p2.z-z);
+								
+								double dist =std::sqrt((double)(
+					               (p2.x-x)*(p2.x-x) *this->spx*this->spx
+					               + (p2.y-y)*(p2.y-y) *this->spy*this->spy
+					               + (p2.z-z)*(p2.z-z) *this->spz*this->spz
+					               ));
+					   
+								//double dist = (p2.x-x)*(p2.x-x) + (p2.y-y)*(p2.y-y) + (p2.z-z)*(p2.z-z);
 								if(dist<min){
 									closest = p2;
 									min = dist;
@@ -328,7 +362,14 @@ public:
 				int size=empSeg.size();
 				for(int i=0; i< size;i++){
 					VoxelInfo p2 = empSeg[i];
-					double dist = (p2.x-x)*(p2.x-x) + (p2.y-y)*(p2.y-y) + (p2.z-z)*(p2.z-z);
+					
+					double dist =std::sqrt((double)(
+					               (p2.x-x)*(p2.x-x) *this->spx*this->spx
+					               + (p2.y-y)*(p2.y-y) *this->spy*this->spy
+					               + (p2.z-z)*(p2.z-z) *this->spz*this->spz
+					               ));
+								   
+					//double dist = (p2.x-x)*(p2.x-x) + (p2.y-y)*(p2.y-y) + (p2.z-z)*(p2.z-z);
 					if(dist<min){
 						closest = p2;
 						min = dist;
@@ -342,7 +383,13 @@ public:
 				rcount=0;
 			}
 
-			min = std::sqrt( (closest.x-x)*(closest.x-x) + (closest.y-y)*(closest.y-y) + (closest.z-z)*(closest.z-z) );
+			min =std::sqrt((double)(
+					               (closest.x-x)*(closest.x-x) *this->spx*this->spx
+					               + (closest.y-y)*(closest.y-y) *this->spy*this->spy
+					               + (closest.z-z)*(closest.z-z) *this->spz*this->spz
+					               ));
+								   
+			//min = std::sqrt( (closest.x-x)*(closest.x-x) + (closest.y-y)*(closest.y-y) + (closest.z-z)*(closest.z-z) );
 			AVD_SUM += min;
 			AVD_NUM ++;
 
@@ -374,7 +421,14 @@ public:
 		double y2 = mean[1];
 		double z2 = mean[2];
 		//std::cout << " MEAN: "<< x2 << ", " << y2 << ", " << z2 << std::endl;
-		double distance = std::sqrt((double)((x2-x1)*(x2-x1)+ (y2-y1)*(y2-y1) + (z2-z1)*(z2-z1)));
+		
+		double distance =std::sqrt((double)(
+					               (x2-x1)*(x2-x1) *this->spx*this->spx
+					               + (y2-y1)*(y2-y1) *this->spy*this->spy
+					               + (z2-z1)*(z2-z1) *this->spz*this->spz
+					               ));
+								   
+		//double distance = std::sqrt((double)((x2-x1)*(x2-x1)+ (y2-y1)*(y2-y1) + (z2-z1)*(z2-z1)));
 		double x_factor = (x2-x1)/distance;
 		double y_factor = (y2-y1)/distance;
 		double z_factor = (z2-z1)/distance;

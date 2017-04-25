@@ -47,6 +47,53 @@ public:
         this->threshold = threshold;
 	}
 
+	double getTP(){
+		return contingencyTable->tp;
+	}
+	
+	double getTN(){
+		return contingencyTable->tn;
+	}
+	
+	double getFP(){
+		return contingencyTable->fp;
+	}
+
+	double getFN(){
+		return contingencyTable->fn;
+	}
+	
+	
+	double CalcSegmentedVolumeInVoxel(){
+	     double tp = contingencyTable->tp;
+		double fp = contingencyTable->fp;
+		return tp + fp;
+	}
+	
+	double CalcSegmentedVolumeInMl(){
+	     double tp = contingencyTable->tp;
+		double fp = contingencyTable->fp;
+		double spx = contingencyTable->vspx;
+		double spy = contingencyTable->vspy;
+		double spz = contingencyTable->vspz;
+		return (tp + fp) * spx * spy * spz / 1000.0;
+	}
+	
+	double CalcReferenceVolumeInVoxel(){
+	     double tp = contingencyTable->tp;
+		double fn = contingencyTable->fn;
+		return tp + fn;
+	}
+	
+	double CalcReferenceVolumeInMl(){
+	     double tp = contingencyTable->tp;
+		double fn = contingencyTable->fn;
+		double spx = contingencyTable->vspx;
+		double spy = contingencyTable->vspy;
+		double spz = contingencyTable->vspz;
+		return (tp + fn) * spx * spy * spz / 1000.0;
+	}	
+
 	
 	double CalcSensitivity(){
 	     double tp = contingencyTable->tp;
