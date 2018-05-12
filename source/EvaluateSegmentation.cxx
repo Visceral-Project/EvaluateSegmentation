@@ -44,6 +44,7 @@
 #include "Localization.h" 
 #include "LesionDetection.h" 
 
+#define MAX_OPTION_CHAR_ARRAY_SIZE 128
 
 
 using namespace std;
@@ -143,8 +144,8 @@ vector<string> parseDefaults(){
 	vector<string> options;
 	ifstream i_stream;
 	std::string line, token;
-	char* filename = (char*)"default.txt";
-	i_stream.open(filename); 
+	const std::string filename ( "default.txt" );
+	i_stream.open(filename.c_str() );
 
 	if (i_stream.is_open()) {
 		while (i_stream.good()) {
@@ -189,10 +190,10 @@ int main(int argc, char** argv)
 		}
 	}
 	else if(std::string(argv[1]) == "-loc"){
-		char* groundtruthfile =  argv[2];
-		char* testfile =  argv[3];
-		char* targetfile = NULL;
-		char* options = "all";
+		const char* groundtruthfile =  argv[2];
+		const char* testfile =  argv[3];
+		const char* targetfile = ITK_NULLPTR;
+		const char* options = "all";
 		
 		for (int i = 1; i < argc; i++) { 
 			if (std::string(argv[i]) == "-xml") {
@@ -232,11 +233,11 @@ int main(int argc, char** argv)
 
 	}
 	else if(std::string(argv[1]) == "-det"){
-		char* groundtruthfile =  argv[2];
-		char* testfile =  argv[3];
-		char* targetfile = NULL;
-		char* maskfile = NULL;
-		char* options = "all";
+		const char* groundtruthfile =  argv[2];
+		const char* testfile =  argv[3];
+		const char* targetfile = ITK_NULLPTR;
+		const char* maskfile = ITK_NULLPTR;
+		const char* options = "all";
 		
 		for (int i = 1; i < argc; i++) { 
 			if (std::string(argv[i]) == "-xml") {
@@ -279,11 +280,11 @@ int main(int argc, char** argv)
 
 	}
 	else { 
-		char* groundtruthfile =  argv[1];
-		char* testfile =  argv[2];
-		char* targetfile = NULL;
-		char* options = "all";
-		char* unit = "voxel";
+		const char* groundtruthfile =  argv[1];
+		const char* testfile =  argv[2];
+		char* targetfile = ITK_NULLPTR;
+		char options [MAX_OPTION_CHAR_ARRAY_SIZE] ="all" ;
+		const char* unit = "voxel";
 		double threshold = -1;
 		bool use_default_config =false;
 		bool useStreamingFilter=true;
@@ -308,10 +309,9 @@ int main(int argc, char** argv)
 							threshold = atof(default_options[i + 1].c_str());
 						}else if (default_options[i] == "-xml") {
 							 targetfile = new char[default_options[i + 1].length()];
-                             strcpy(targetfile,default_options[i + 1].c_str());
+							 strcpy(targetfile,default_options[i + 1].c_str());
 						}else if (default_options[i] == "-use") {
-							 options = new char[default_options[i + 1].length()];
-                             strcpy(options,default_options[i + 1].c_str());
+               strcpy(options,default_options[i + 1].c_str());
 						}
 					}
 				}
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
 				}else if (std::string(argv[i]) == "-xml") {
 					targetfile = argv[i + 1];
 				}else if (std::string(argv[i]) == "-use") {
-					options = argv[i + 1];
+					strncpy(options, argv[i + 1],MAX_OPTION_CHAR_ARRAY_SIZE);
 				}
 				else if(std::string(argv[i]) == "-unit"){
 					unit = argv[i + 1];

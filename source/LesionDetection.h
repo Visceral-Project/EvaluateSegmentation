@@ -271,7 +271,7 @@ itk::DOMNode::Pointer  OpenLesionDetectionResultXML(const char* targtfile, const
 	}
 
 	dOMObject = itk::DOMNode::New();
-	char *nodename= "measurement";
+	const char *nodename= "measurement";
 	dOMObject->SetName( nodename);
 
 	itk::DOMNode::Pointer n = itk::DOMNode::New();
@@ -487,7 +487,7 @@ bool compareLesions(GTLesion* truth, TestLesion* test, itk::DOMNode::Pointer xml
 
 
 
-int validateLesionDetection(const char* f1, const char* f2, const char* targetFile, const char* maskFile, char *options)
+static int validateLesionDetection(const char* f1, const char* f2, const char* targetFile, const char* maskFile, const char *options)
 {
 	LesionDetectionMask * organmask=NULL;
 	string l_truth_file = "";

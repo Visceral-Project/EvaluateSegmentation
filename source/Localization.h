@@ -112,7 +112,7 @@ itk::DOMNode::Pointer  OpenLocalizationResultXML(const char* targtfile, const ch
 			itksys::SystemTools::RemoveFile(xMLFileName);
 		}
 		dOMObject = itk::DOMNode::New();
-		char *nodename= "measurement";
+		const char *nodename= "measurement";
 		dOMObject->SetName( nodename);
 				
 		itk::DOMNode::Pointer n = itk::DOMNode::New();
@@ -196,7 +196,7 @@ void compareLandmarks(Landmark* truth, Landmark* test, itk::DOMNode::Pointer xml
 
 
 
-int validateLocalization(const char* f1, const char* f2, const char* targetFile, char *options)
+int validateLocalization(const char* f1, const char* f2, const char* targetFile, const char *options)
 {
 	
 
