@@ -492,7 +492,6 @@ static int validateLesionDetection(const char* f1, const char* f2, const char* t
 	LesionDetectionMask * organmask=NULL;
 	string l_truth_file = "";
 	string l_test_file = "";
-	string mask_file = "";
 	bool truth_url=isUrl(f1);
 	if(truth_url){
 		l_truth_file = download_image(f1, "__temp_lesiondetection_file_truth.fcsv"); 
@@ -522,7 +521,7 @@ static int validateLesionDetection(const char* f1, const char* f2, const char* t
 	if(maskFile!=NULL && maskFile!=""){
 		bool mask_url=isUrl(maskFile);
 		if(mask_url){
-			mask_file = download_image(maskFile, "__temp_lesiondetection_file_test.nii");
+			const string mask_file = download_image(maskFile, "__temp_lesiondetection_file_test.nii");
 			organmask = new LesionDetectionMask(mask_file.c_str());
 			remove(l_test_file.c_str());
 		}
