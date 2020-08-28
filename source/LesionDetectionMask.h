@@ -8,7 +8,7 @@
 #include "itkImageRegionIterator.h"
 #include "itkImageFileWriter.h"
 #include "itkImageRegionIteratorWithIndex.h"
-#include "itkImageTransformHelper.h"
+
 
 #include "itkOutputWindow.h"
 #include "itkTextOutput.h"

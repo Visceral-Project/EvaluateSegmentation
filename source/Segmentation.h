@@ -100,13 +100,13 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 		std::cout << "Crisp segmentation at threshold= " << threshold << "\n" << std::endl;
 	}
 	ImageType::Pointer truthImg = loadImage(f1, useStreamingFilter);
-	if(truthImg == (ImageType::Pointer) 0){
+	if(truthImg ==  0){
 		return EXIT_FAILURE;
 	}
 
 	ImageType::Pointer testImg = loadImage(f2, useStreamingFilter);
 
-	if(testImg == (ImageType::Pointer) 0){
+	if(testImg ==  0){
 		return EXIT_FAILURE;
 	}
 
@@ -300,6 +300,46 @@ int validateImage(const char* f1, const char* f2, double threshold, const char* 
 		}
 		
 	}
+	
+	/*
+	metricId = AVGDIST_D;
+	if(shouldUse(metricId, options)){
+	    clock_t t = clock();
+        long long s1= ((double)t*1000)/CLOCKS_PER_SEC;	
+		AverageDistanceMetric *averageDistanceMetric = new AverageDistanceMetric(truthImg, testImg, fuzzy, threshold, use_millimeter);
+		value =  averageDistanceMetric->CalcAverageDistaceDirected();
+	    t = clock();
+        long long s2= ((double)t*1000)/CLOCKS_PER_SEC;	
+		int milliseconds =  (s2-s1);
+		if(use_millimeter){
+		    pushValue(metricId, value, milliseconds, xmlObject, "millimeter");
+		}
+		else{
+		    pushValue(metricId, value, milliseconds, xmlObject, "voxel");
+		}
+		
+	}
+	*/
+	
+	metricId = bAVD;
+	if(shouldUse(metricId, options)){
+	    clock_t t = clock();
+        long long s1= ((double)t*1000)/CLOCKS_PER_SEC;	
+		AverageDistanceMetric *averageDistanceMetric = new AverageDistanceMetric(truthImg, testImg, fuzzy, threshold, use_millimeter);
+		value =  averageDistanceMetric->CalcBalancedAverageDistace();
+	    t = clock();
+        long long s2= ((double)t*1000)/CLOCKS_PER_SEC;	
+		int milliseconds =  (s2-s1);
+		if(use_millimeter){
+		    pushValue(metricId, value, milliseconds, xmlObject, "millimeter");
+		}
+		else{
+		    pushValue(metricId, value, milliseconds, xmlObject, "voxel");
+		}
+		
+	}
+	
+	
 
 	metricId = MAHLNBS;
 	if(shouldUse(metricId, options)){
@@ -451,10 +491,10 @@ ImageType::Pointer loadImage( const char* filename, bool useStreamingFilter){
 		return img;
 	} 
 	else{
-		if(!itksys::SystemTools::FileExists(filename,true)){
-			cout << "Image doesn't exist: " << filename << std::endl;
-			return 0;
-		}
+		if(itksys::SystemTools::FileExists(filename,true)){
+			
+			
+		
 		try
 		{
 			ImageType::Pointer img ;
@@ -513,7 +553,11 @@ ImageType::Pointer loadImage( const char* filename, bool useStreamingFilter){
 			std::cerr << "Unable to load image!" << std::endl;
 			std::cerr << err << std::endl;
 		}
-
+		}
+		else{
+			
+			cout << "Image doesn't exist: " << filename << std::endl;
+		}
 
 	}
 

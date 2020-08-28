@@ -132,7 +132,12 @@ public:
 		double dist2 = calc(movingImage, fixedImage, false);
 		return (dist1 + dist2)/2;
 	}
-
+	
+	double CalcAverageDistaceDirected(){
+		double dist1 = calc(fixedImage, movingImage, false);
+		return dist1;
+	}
+	
 	std::vector<Cell> build(){
 		std::vector<Cell> cs;
 		grid_num_x = max_x/grid_len+1;
@@ -408,6 +413,13 @@ public:
 		//saveImage(surface, FP_index, "surface.mha", max_x, max_y, max_z);
 #endif
 
+       double value1 = AVD_SUM; 
+       double value2 = AVD_NUM+numberTruePositives; 
+	   double value3 = value1/value2; 
+	   std::cout << "------------ Average distance details: -----------------" << std::endl;
+       std::cout << "AVGDST: " << value1 <<" / " << value2 << " = " << value3 << std::endl;
+	   std::cout << "------------ Average distance details end. -----------------" << std::endl;
+
 		return AVD_SUM/(AVD_NUM+numberTruePositives);
 
 	}
@@ -596,5 +608,291 @@ public:
 	}
 #endif
 
+
+//-------------------------------- balanced Average Distance -------------------
+
+	double CalcBalancedAverageDistace(){
+		int N_GT = 0;
+		IteratorType fixedIt(fixedImage, fixedImage->GetRequestedRegion());
+		fixedIt.GoToBegin();
+		while (!fixedIt.IsAtEnd()){
+			if(fixedIt.Get()>thd){
+				N_GT++;
+				
+			}
+			++fixedIt;
+		}
+		double dist1 = calc_balanced(fixedImage, movingImage, false)/N_GT;
+		double dist2 = calc_balanced(movingImage, fixedImage, false)/N_GT;
+		return (dist1 + dist2)/2;
+	}
+	
+	
+    double calc_balanced(ImageType *image1, ImageType *image2, bool exhaust_search){
+		std::vector<VoxelInfo> empSeg;
+		int numberfalseNegatives=0;
+		int numberTruePositives=0;
+		int numberFalsePositives=0;
+		max_x =0;
+		max_y =0;
+		max_z =0;
+		IteratorType fixedIt(image1, image1->GetRequestedRegion());
+		IteratorType movingIt(image2, image2->GetRequestedRegion());
+		emp_f=true;
+		emp_m=true;
+		fixedIt.GoToBegin();
+		movingIt.GoToBegin();
+		while (!fixedIt.IsAtEnd() && !movingIt.IsAtEnd()){
+			ImageType::IndexType index = movingIt.GetIndex();
+			if(fixedIt.Get()>thd && movingIt.Get()<=thd){
+				emp_f=false;
+				numberfalseNegatives++;
+			}
+			if(movingIt.Get()>thd){
+				emp_m=false;
+				if(fixedIt.Get()>thd){
+					emp_f=false;
+					numberTruePositives++;
+				}
+				if(index[0]>max_extent){
+					max_extent = index[0];
+				}
+				if(index[1]>max_extent){
+					max_extent = index[1];
+				}
+				if(index[2]>max_extent){
+					max_extent = index[2];
+				}
+			}
+			if(index[0]>max_x){
+				max_x = index[0];
+			}
+			if(index[1]>max_y){
+				max_y = index[1];
+			}
+			if(index[2]>max_z){
+				max_z = index[2];
+			}
+
+#ifdef _DEBUG
+			if(movingIt.Get()>thd && fixedIt.Get()<=thd ){
+				numberFalsePositives++;
+			}
+#endif
+
+			++movingIt;
+			++fixedIt;
+		}
+		if(numberfalseNegatives==0){
+			return 0;
+		}
+		std::vector<Cell> index = build();
+		VoxelInfo* falseNegatives = new VoxelInfo[numberfalseNegatives];
+		int fp_ind=0;
+		int tp_ind=0;
+#ifdef _DEBUG
+		VoxelInfo* truePositives;
+		VoxelInfo* falsePositives;
+		falsePositives = new VoxelInfo[numberFalsePositives];
+		truePositives = new VoxelInfo[numberTruePositives];
+#endif
+
+		fixedIt.GoToBegin();
+		movingIt.GoToBegin();
+		int FP_index=0;
+		int FN_index=0;
+
+		while (!fixedIt.IsAtEnd() && !movingIt.IsAtEnd()){
+			if(fixedIt.Get()>thd && movingIt.Get()<=thd){
+				falseNegatives[FN_index].value = fixedIt.Get();
+				falseNegatives[FN_index].x = fixedIt.GetIndex()[0];
+				falseNegatives[FN_index].y = fixedIt.GetIndex()[1];
+				falseNegatives[FN_index].z = fixedIt.GetIndex()[2];
+				FN_index++;
+			}
+
+			if(movingIt.Get()>thd){
+				VoxelInfo vi;
+				vi.value = movingIt.Get();
+				vi.x = movingIt.GetIndex()[0];
+				vi.y = movingIt.GetIndex()[1];
+				vi.z = movingIt.GetIndex()[2];
+				bool surface = isBoundary(movingIt.GetIndex(), image2);
+				if(surface){
+					empSeg.push_back(vi);
+					int x_ind = vi.x/grid_len;
+					int y_ind = vi.y/grid_len;
+					int z_ind = vi.z/grid_len;
+					Cell *gc = &index[z_ind + y_ind * grid_num_z + x_ind * grid_num_y*grid_num_z];
+					gc->voxels.push_back(vi);
+					gc->emp=false;
+					FP_index++;
+				}
+			}
+
+#ifdef _DEBUG
+			if(fixedIt.Get()<=thd && movingIt.Get()>thd){
+				falsePositives[fp_ind].value = fixedIt.Get();
+				falsePositives[fp_ind].x = fixedIt.GetIndex()[0];
+				falsePositives[fp_ind].y = fixedIt.GetIndex()[1];
+				falsePositives[fp_ind].z = fixedIt.GetIndex()[2];
+				fp_ind++;
+			}
+			else if(fixedIt.Get()>thd && movingIt.Get()>thd){
+				truePositives[tp_ind].value = fixedIt.Get();
+				truePositives[tp_ind].x = fixedIt.GetIndex()[0];
+				truePositives[tp_ind].y = fixedIt.GetIndex()[1];
+				truePositives[tp_ind].z = fixedIt.GetIndex()[2];
+				tp_ind++;
+
+			}
+#endif
+			++movingIt;
+			++fixedIt;
+		}
+
+		double AVD_SUM = 0;
+		double AVD_NUM = 0;
+		maxValue = 10000000000;
+		V2 mean = calcMean(image2);
+
+		int rcount=0;
+
+		for(int ind=0 ; ind< numberfalseNegatives ; ind++){
+			VoxelInfo p1 = falseNegatives[ind];   
+			double x = p1.x;
+			double y = p1.y;
+			double z = p1.z;
+			double min = maxValue;
+			VoxelInfo closest;
+			bool found =false;
+
+			double radius = -1;
+			if(!exhaust_search){
+				radius = calcSph(p1, image2, mean); 
+			}
+
+
+			if(radius!=-1){
+				//double radius = 50;
+				int x_min_index = (x - radius)/(grid_len);
+				if(x_min_index<0) 
+					x_min_index=0;
+				int x_max_index = (x + radius)/(grid_len);
+				if(x_max_index>=grid_num_x) 
+					x_max_index=grid_num_x - 1;
+
+				int y_min_index = (y - radius)/(grid_len);
+				if(y_min_index<0) 
+					y_min_index=0;
+				int y_max_index = (y + radius)/(grid_len);
+				if(y_max_index >= grid_num_y) 
+					y_max_index = grid_num_y - 1;
+
+				int z_min_index = (z - radius)/(grid_len);
+				if(z_min_index < 0) 
+					z_min_index = 0;
+				int z_max_index = (z + radius)/(grid_len);
+				if(z_max_index >= grid_num_z) 
+					z_max_index = grid_num_z - 1;
+
+				for(int i_x=x_min_index ; i_x <= x_max_index ; i_x++ ){
+					for(int i_y=y_min_index ; i_y <= y_max_index ; i_y++ ){
+						for(int i_z=z_min_index ; i_z <= z_max_index ; i_z++ ){
+							Cell *gc = &index[i_z + i_y * grid_num_z + i_x * grid_num_y*grid_num_z];
+
+							if(gc->emp){
+								continue;
+							}
+							int size=gc->voxels.size();
+							//std::cout << " size: "<< size<< std::endl;
+							for(int i=0; i< size;i++){
+								VoxelInfo p2 = gc->voxels[i];
+								
+								double dist =std::sqrt((double)(
+					               (p2.x-x)*(p2.x-x) *this->spx*this->spx
+					               + (p2.y-y)*(p2.y-y) *this->spy*this->spy
+					               + (p2.z-z)*(p2.z-z) *this->spz*this->spz
+					               ));
+					   
+								//double dist = (p2.x-x)*(p2.x-x) + (p2.y-y)*(p2.y-y) + (p2.z-z)*(p2.z-z);
+								if(dist<min){
+									closest = p2;
+									min = dist;
+									found=true;
+								}
+							}
+
+						}
+					}
+				}
+
+			}
+			else{
+				rcount++;
+				int size=empSeg.size();
+				for(int i=0; i< size;i++){
+					VoxelInfo p2 = empSeg[i];
+					
+					double dist =std::sqrt((double)(
+					               (p2.x-x)*(p2.x-x) *this->spx*this->spx
+					               + (p2.y-y)*(p2.y-y) *this->spy*this->spy
+					               + (p2.z-z)*(p2.z-z) *this->spz*this->spz
+					               ));
+								   
+					//double dist = (p2.x-x)*(p2.x-x) + (p2.y-y)*(p2.y-y) + (p2.z-z)*(p2.z-z);
+					if(dist<min){
+						closest = p2;
+						min = dist;
+					}
+				}
+			}
+
+			if(ind%1000==0){
+				//if(exhaust_search)
+				//	std::cout << ind<< " of "<< numberfalseNegatives<< " rcount:" << rcount << std::endl;
+				rcount=0;
+			}
+
+			min =std::sqrt((double)(
+					               (closest.x-x)*(closest.x-x) *this->spx*this->spx
+					               + (closest.y-y)*(closest.y-y) *this->spy*this->spy
+					               + (closest.z-z)*(closest.z-z) *this->spz*this->spz
+					               ));
+								   
+			//min = std::sqrt( (closest.x-x)*(closest.x-x) + (closest.y-y)*(closest.y-y) + (closest.z-z)*(closest.z-z) );
+			AVD_SUM += min;
+			AVD_NUM ++;
+
+		}
+
+
+#ifdef _DEBUG
+		//saveImage(falseNegatives, numberfalseNegatives, "falseNegatives.mha", max_x, max_y, max_z);
+		//saveImage(falsePositives, numberFalsePositives, "falsePositives.mha", max_x, max_y, max_z);
+		//saveImage(truePositives, numberTruePositives, "truePositives.mha", max_x, max_y, max_z);
+		//VoxelInfo* surface = new VoxelInfo[FP_index];
+		//for(int i=0; i< empSeg.size() ; i++){
+		//	VoxelInfo p= empSeg[i];
+		//	surface[i]=p;
+		//}
+		//saveImage(surface, FP_index, "surface.mha", max_x, max_y, max_z);
+#endif
+
+       //double value1 = AVD_SUM; 
+       //double value2 = AVD_NUM+numberTruePositives; 
+	   //double value3 = value1/value2; 
+	   //std::cout << "------------ Average distance details: -----------------" << std::endl;
+       //std::cout << "AVGDST: " << value1 <<" / " << value2 << " = " << value3 << std::endl;
+	   //std::cout << "------------ Average distance details end. -----------------" << std::endl;
+
+		return AVD_SUM;
+
+	}
+
+
+
+	
+	
 };
 

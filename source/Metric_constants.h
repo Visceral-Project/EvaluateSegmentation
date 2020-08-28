@@ -43,8 +43,8 @@ typedef struct MetricInfo{
 MetricInfo* metricInfo;
 
 enum MetricId  {DICE, JACRD, AUC, KAPPA, RNDIND, ADJRIND, ICCORR, VOLSMTY, MUTINF, 
-                 MAHLNBS, AVGDIST, HDRFDST, VARINFO, GCOERR, PROBDST,       
-                 SNSVTY, SPCFTY, PRCISON,  FMEASR, ACURCY, FALLOUT, TP, FP, TN, FN, REFVOL, SEGVOL
+                 MAHLNBS, AVGDIST, bAVD, HDRFDST, VARINFO, GCOERR, PROBDST,       
+                 SNSVTY, SPCFTY, PRCISON,  FMEASR, ACURCY, FALLOUT, TP, FP, TN, FN, REFVOL, SEGVOL, AVGDIST_D
 #ifdef _DEBUG
 				 , MEANTOMEAN ,HDRFDSTITK, HDRFDSTNAIVE, MAHAVDIST, TEST, AVGDISTITK
 #endif
@@ -149,7 +149,27 @@ void initMetricInfo(){
   info->help ="Average Hausdorff Distance";
   info->similarity =false;
   info->testmetric =false;
-
+  
+  /*
+  info = &metricInfo[AVGDIST_D];
+  info->metrId = "AVGDIST";
+  info->metrSymb="AVGDIST";
+  info->metrInfo ="Average Hausdorff Distance Directed"; // tested with naive algorithm
+  info->help ="Average Hausdorff Distance Directed";
+  info->similarity =false;
+  info->testmetric =false;
+  */
+  
+  info = &metricInfo[bAVD];
+  info->metrId = "bAVD";
+  info->metrSymb="bAVD";
+  info->metrInfo ="Balanced Average Hausdorff Distance (new metric, publication submitted)"; // tested with naive algorithm
+  info->help ="Balanced Average Hausdorff Distance (new proposed metric, publication submitted)";
+  info->similarity =false;
+  info->testmetric =false;
+  
+  
+  
   info = &metricInfo[HDRFDST];
   info->metrId = "HDRFDST";
   info->metrSymb="HDRFDST";

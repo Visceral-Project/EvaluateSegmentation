@@ -301,7 +301,7 @@ itk::DOMNode::Pointer  OpenLesionDetectionResultXML(const char* targtfile, const
 }
 
 void SaveLesionDetectionResultXML(itk::DOMNode::Pointer xmlObject, const char* targtfile){
-	if(targtfile != NULL && xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(targtfile != NULL && xmlObject != NULL){
 		cout << "\nWriting result in file: " << targtfile << "\n";
 		itk::DOMNodeXMLWriter::Pointer writer = itk::DOMNodeXMLWriter::New();
 		writer->SetInput(xmlObject );
@@ -329,7 +329,7 @@ void display(itk::DOMNode::Pointer xmlObject){
 	}
 
 	cout << "\nDetection (Brain, Lungs, Liver, Bonse):\n";
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		itk::DOMNode * lesion_node= xmlObject->GetChild("Detection");
 		if(lesion_node != NULL){
 			vector<itk::DOMNode *> gt_lesions;
@@ -354,7 +354,7 @@ void display(itk::DOMNode::Pointer xmlObject){
 	}
 
 	cout << "\nScores (Brain, Lungs, Liver, Bonse):\n";
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		itk::DOMNode * lesion_node= xmlObject->GetChild("Metrics");
 		if(lesion_node != NULL){
 			cout << "Precision= " << lesion_node->GetAttribute("precision") << std::endl;
@@ -363,7 +363,7 @@ void display(itk::DOMNode::Pointer xmlObject){
 	}
 
 	cout << "\nDetection (lymphnodes):\n";
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		itk::DOMNode * lesion_node= xmlObject->GetChild("Detection");
 		if(lesion_node != NULL){
 			vector<itk::DOMNode *> gt_lesions;
@@ -388,7 +388,7 @@ void display(itk::DOMNode::Pointer xmlObject){
 	}
 
 	cout << "\nScore (lymphnode):\n";
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		itk::DOMNode * lesion_node= xmlObject->GetChild("Metrics");
 		if(lesion_node != NULL){
 			cout << "Detection rate= " << lesion_node->GetAttribute("lymphnode-detection-rate") << std::endl;
@@ -420,7 +420,7 @@ bool compareLesions(GTLesion* truth, TestLesion* test, itk::DOMNode::Pointer xml
 		char s_diam [50];
 		sprintf(s_diam, "%.6f", diameter);
 
-		if(xmlObject != (itk::DOMNode::Pointer)NULL){
+		if(xmlObject != NULL){
 			itk::DOMNode * lesion_node= xmlObject->GetChild("Detection");
 			if(lesion_node != NULL){
 				itk::DOMNode::Pointer n = itk::DOMNode::New();
@@ -457,7 +457,7 @@ bool compareLesions(GTLesion* truth, TestLesion* test, itk::DOMNode::Pointer xml
 	else{
 		char s_truth[100];
 		sprintf(s_truth, "(%.0f,%.0f,%.0f)", truth->m_x, truth->m_y, truth->m_z);
-		if(xmlObject != (itk::DOMNode::Pointer)NULL){
+		if(xmlObject != NULL){
 			itk::DOMNode * lesion_node= xmlObject->GetChild("Detection");
 			if(lesion_node != NULL){
 				itk::DOMNode::Pointer n = itk::DOMNode::New();
@@ -544,7 +544,7 @@ int validateLesionDetection(const char* f1, const char* f2, const char* targetFi
 
 
 	itk::DOMNode * retrieved_node= NULL;
-	if(xmlObject!= (itk::DOMNode::Pointer)NULL){
+	if(xmlObject!= NULL){
 		retrieved_node = xmlObject->GetChild("Retrieved-Lesions");
 	}
 
@@ -562,7 +562,7 @@ int validateLesionDetection(const char* f1, const char* f2, const char* targetFi
 
 			char s_test[100];
 			sprintf(s_test, "(%.3f,%.3f,%.3f)", lesion->x, lesion->y, lesion->z);
-			if(xmlObject != (itk::DOMNode::Pointer)NULL){
+			if(xmlObject != NULL){
 				itk::DOMNode::Pointer n = itk::DOMNode::New();
 				itk::DOMNode* node =(itk::DOMNode*)n;
 				node->SetName( "Lesion"); 
@@ -596,7 +596,7 @@ int validateLesionDetection(const char* f1, const char* f2, const char* targetFi
 	}
 
 
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		itk::DOMNode::Pointer 	n = itk::DOMNode::New();
 		itk::DOMNode* node = (itk::DOMNode*)n;
 		xmlObject->AddChildAtEnd( node );

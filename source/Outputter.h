@@ -88,11 +88,11 @@ itk::DOMNode::Pointer  OpenSegmentationResultXML(const char* targtfile, const ch
 
 		return dOMObject;
 	}
-	return NULL;
+
 }
 
 void  pushTotalExecutionTime(long time,  itk::DOMNode::Pointer xmlObject){
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		char val [50];
 		sprintf(val, "%d", time);
 		char* name="time";
@@ -108,7 +108,7 @@ void  pushTotalExecutionTime(long time,  itk::DOMNode::Pointer xmlObject){
 }
 
 void  pushDimentions(int max_x, int max_y, int max_z, double vsp_x, double vsp_y, double vsp_z, itk::DOMNode::Pointer xmlObject){
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		char* name="dimention";
 		itk::DOMNode* node = dOMObject->GetChild(name);
 		if(node == NULL){ 
@@ -138,7 +138,7 @@ void  pushDimentions(int max_x, int max_y, int max_z, double vsp_x, double vsp_y
 }
 
 void SaveXmlObject(itk::DOMNode::Pointer xmlObject, const char* targtfile){
-	if(targtfile != NULL && xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(targtfile != NULL && xmlObject != NULL){
 		itk::DOMNodeXMLWriter::Pointer writer = itk::DOMNodeXMLWriter::New();
 		writer->SetInput(xmlObject );
 		writer->SetFileName( targtfile );
@@ -174,7 +174,7 @@ void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject, bool 
 		sprintf(unit_s, " %s", "");
 
 	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << unit_s << std::endl;
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != NULL){
 		itk::DOMNode* metricnode = AddNodeWithAttributeIfNotExists((itk::DOMNode*)xmlObject, "metrics", NULL, NULL);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "name", metricInfo[id].metrInfo);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "symbol",  metricInfo[id].metrSymb);
@@ -203,7 +203,7 @@ void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::P
 
 	std::cout << metricInfo[id].metrSymb << "\t= " << val << "\t" << metricInfo[id].metrInfo << unit_s << std::endl;
 
-	if(xmlObject != (itk::DOMNode::Pointer)NULL){
+	if(xmlObject != (itk::DOMNode*)NULL){
 		itk::DOMNode* metricnode = AddNodeWithAttributeIfNotExists((itk::DOMNode*)xmlObject, "metrics", NULL, NULL);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "name", metricInfo[id].metrInfo);
 		AddNodeWithAttributeIfNotExists(metricnode, metricInfo[id].metrId, "symbol",  metricInfo[id].metrSymb);

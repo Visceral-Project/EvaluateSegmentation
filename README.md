@@ -26,6 +26,9 @@ Please cite the following paper to reference this software \[[pdf](http://www.bi
 
 *Abdel Aziz Taha and Allan Hanbury. Metrics for evaluating 3D medical image segmentation: analysis, selection, and tool. BMC Medical Imaging, 15:29, August 2015.*
 
+For referencing the new metric bAVD (balanced Average Hausdorff Distance), a publication has been submitted and will be given here once accepted.
+
+
 #### Description 
 
 EvaluateSegmentation is a tool that compares two volumes (a test segmentation and a ground truth segmentation) using 22 different metrics that were selected as a result of a comprehensive research into the metrics used in the medical volume segmentations. 
@@ -111,7 +114,8 @@ USAGE:
 		MUTINF: Mutual Information  
 		FALLOUT: Fallout (false positive rate)  
 		COEFVAR: Coefficient of Variation  
-		AVGDIST: Average Distance (in voxel or millimeter according to -unit)
+		AVGDIST: Average Hausdorff Distance (in voxel or millimeter according to -unit)
+		bAVD: Balanced Average Hausdorff Distance (new metric, publication sumitted, will be given here once accepted)
 		HDRFDST: Hausdorff Distance in voxels HDRFDST@0.95@ means use 0.95 quantile to avoid outliers. Default is quantile of 1 which means exact Hausdorff distance  (in voxel or millimeter according to -unit)
 		VARINFO: Variation of Information  
 		PROBDST: Probabilistic Distance  
