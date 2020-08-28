@@ -51,26 +51,26 @@ Similarity
 Distance   
 10.	Hausdorff Distance (optionally in voxel or millimeter)  
 11.	Average Hausdorff Distance  (optionally in voxel or millimeter)  
-11.	Balanced Average Hausdorff Distance  (a novel metric, publication is submitted, optionally in voxel or millimeter)  
-12.	Mahanabolis Distance  
-13.	Variation of Information  
-14.	Global Consistency Error  
-15.	Coefficient of Variation  
-16.	Probabilistic Distance
+12.	Balanced Average Hausdorff Distance  (a novel metric, publication is submitted, optionally in voxel or millimeter)  
+13.	Mahanabolis Distance  
+14.	Variation of Information  
+15.	Global Consistency Error  
+16.	Coefficient of Variation  
+17.	Probabilistic Distance
 
 Classic measures  
-17.	Sensitivity (Recall, true positive rate)  
-18.	Specificity (true negative rate)  
-19.	Precision  
-20.	F-Measure  
-21.	Accuracy  
-22.	Fallout (false positive rate)  
-23.	true positives (in voxel)  
-24.	true negatives (in voxel)  
-25.	false positives (in voxel)  
-26.	false negatives (in voxel)  
-27.	segmented volume (optionally in voxel or milliliter)  
-28.	reference volume (optionally in voxel or milliliter)  
+18.	Sensitivity (Recall, true positive rate)  
+19.	Specificity (true negative rate)  
+12.	Precision  
+21.	F-Measure  
+22.	Accuracy  
+23.	Fallout (false positive rate)  
+24.	true positives (in voxel)  
+25.	true negatives (in voxel)  
+26.	false positives (in voxel)  
+27.	false negatives (in voxel)  
+28.	segmented volume (optionally in voxel or milliliter)  
+29.	reference volume (optionally in voxel or milliliter)  
 
 
 #### Supported Images  
