@@ -49,8 +49,9 @@ Similarity
 9.	Mutual Information
 
 Distance   
-10.	Hausdorff Distance (optionally in voxel or millimeter)
-11.	Average Distance  (optionally in voxel or millimeter)
+10.	Hausdorff Distance (optionally in voxel or millimeter)  
+11.	Average Hausdorff Distance  (optionally in voxel or millimeter)  
+11.	Balanced Average Hausdorff Distance  (a novel metric, publication is submitted, optionally in voxel or millimeter)  
 12.	Mahanabolis Distance  
 13.	Variation of Information  
 14.	Global Consistency Error  
