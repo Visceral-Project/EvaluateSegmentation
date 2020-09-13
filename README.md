@@ -3,7 +3,7 @@
 
 EvaluateSegmentation Tool, VISCERAL http://www.visceral.eu  
 VISCERAL received funding from EU FP7, contract 318068   
-Developed by Abdel Aziz Taha (taha@ifs.tuwien.ac.at)   
+Developed by Abdel Aziz Taha (taha@ifs.tuwien.ac.at | http://tahatek.com)   
 24.02.2013  
 Copyright 2013 Vienna University of Technology I
 nstitute of Software Technology and Interactive Systems  
