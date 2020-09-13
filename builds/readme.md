@@ -1,1 +1,1 @@
-<a href="http://tahatek.com">TAHATEK</a>
+<a href="http://tahatek.com" rel="ugc">TAHATEK</a>
