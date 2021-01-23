@@ -26,7 +26,9 @@ Please cite the following paper to reference this software \[[pdf](http://www.bi
 
 *Abdel Aziz Taha and Allan Hanbury. Metrics for evaluating 3D medical image segmentation: analysis, selection, and tool. BMC Medical Imaging, 15:29, August 2015.*
 
-For referencing the new metric bAVD (balanced Average Hausdorff Distance), a publication has been submitted and will be given here once accepted.
+For citing the new metric bAVD (balanced Average Hausdorff Distance), please cite the following article:
+
+*O.  U.  Aydin,  A.  A.  Taha,  A.  Hilbert,  A.  A.  Khalil,  I.  Galinovic,  J.  B.Fiebach,  D.  Frey,  and  V.  I.  Madai,  “On  the  usage  of  average  hausdorffdistance for segmentation performance assessment:  Hidden bias when usedfor  ranking,”European  Radiology  Experimental,  vol.  5,  2021. Available:  https://doi.org/10.1186/s41747-020-00200-2*
 
 
 #### Description 
@@ -116,7 +118,7 @@ USAGE:
 		FALLOUT: Fallout (false positive rate)  
 		COEFVAR: Coefficient of Variation  
 		AVGDIST: Average Hausdorff Distance (in voxel or millimeter according to -unit)
-		bAVD: Balanced Average Hausdorff Distance (new metric, publication sumitted, will be given here once accepted)
+		bAVD: Balanced Average Hausdorff Distance
 		HDRFDST: Hausdorff Distance in voxels HDRFDST@0.95@ means use 0.95 quantile to avoid outliers. Default is quantile of 1 which means exact Hausdorff distance  (in voxel or millimeter according to -unit)
 		VARINFO: Variation of Information  
 		PROBDST: Probabilistic Distance  
