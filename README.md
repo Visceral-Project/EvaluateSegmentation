@@ -53,7 +53,7 @@ Similarity
 Distance   
 10.	Hausdorff Distance (optionally in voxel or millimeter)  
 11.	Average Hausdorff Distance  (optionally in voxel or millimeter)  
-12.	Balanced Average Hausdorff Distance  (a novel metric, publication is submitted, optionally in voxel or millimeter)  
+12.	Balanced Average Hausdorff Distance  (a novel metric, published in 2021, see reference above)  
 13.	Mahanabolis Distance  
 14.	Variation of Information  
 15.	Global Consistency Error  
