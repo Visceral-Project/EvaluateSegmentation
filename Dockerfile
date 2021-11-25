@@ -17,7 +17,8 @@ RUN apk add --no-cache \
         gcc \
         git \
         linux-headers \
-        make
+        make \
+        perl
 
 ARG MAKE_JOBS
 WORKDIR /opt/itk-src
