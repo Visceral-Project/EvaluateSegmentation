@@ -271,7 +271,7 @@ itk::DOMNode::Pointer  OpenLesionDetectionResultXML(const char* targtfile, const
 	}
 
 	dOMObject = itk::DOMNode::New();
-	char *nodename= "measurement";
+	const char *nodename= "measurement";
 	dOMObject->SetName( nodename);
 
 	itk::DOMNode::Pointer n = itk::DOMNode::New();
@@ -487,12 +487,11 @@ bool compareLesions(GTLesion* truth, TestLesion* test, itk::DOMNode::Pointer xml
 
 
 
-int validateLesionDetection(const char* f1, const char* f2, const char* targetFile, const char* maskFile, char *options)
+static int validateLesionDetection(const char* f1, const char* f2, const char* targetFile, const char* maskFile, const char *options)
 {
 	LesionDetectionMask * organmask=NULL;
 	string l_truth_file = "";
 	string l_test_file = "";
-	string mask_file = "";
 	bool truth_url=isUrl(f1);
 	if(truth_url){
 		l_truth_file = download_image(f1, "__temp_lesiondetection_file_truth.fcsv"); 
@@ -522,7 +521,7 @@ int validateLesionDetection(const char* f1, const char* f2, const char* targetFi
 	if(maskFile!=NULL && maskFile!=""){
 		bool mask_url=isUrl(maskFile);
 		if(mask_url){
-			mask_file = download_image(maskFile, "__temp_lesiondetection_file_test.nii");
+			const string mask_file = download_image(maskFile, "__temp_lesiondetection_file_test.nii");
 			organmask = new LesionDetectionMask(mask_file.c_str());
 			remove(l_test_file.c_str());
 		}

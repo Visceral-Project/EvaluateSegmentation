@@ -68,7 +68,7 @@ itk::DOMNode::Pointer  OpenSegmentationResultXML(const char* targtfile, const ch
 		else{
 			dOMObject = itk::DOMNode::New();
 		}
-		char *nodename= "measurement";
+		const char *nodename= "measurement";
 		dOMObject->SetName( nodename);
 
 		char val [50];
@@ -94,8 +94,8 @@ itk::DOMNode::Pointer  OpenSegmentationResultXML(const char* targtfile, const ch
 void  pushTotalExecutionTime(long time,  itk::DOMNode::Pointer xmlObject){
 	if(xmlObject != NULL){
 		char val [50];
-		sprintf(val, "%d", time);
-		char* name="time";
+		sprintf(val, "%ld", time);
+		const char* name="time";
 		itk::DOMNode* node = dOMObject->GetChild(name);
 		if(node == NULL){ 
 			itk::DOMNode::Pointer n = itk::DOMNode::New();
@@ -158,7 +158,7 @@ void pushUnit(bool use_millimeter, itk::DOMNode::Pointer xmlObject){
 }
 */
 
-void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject, bool asInteger, char* unit){
+static void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject, bool asInteger, const char* unit){
 	char val [50];
         if(asInteger){
 	  sprintf(val, "%.0f", value);
@@ -189,7 +189,7 @@ void pushValue(MetricId id, double value, itk::DOMNode::Pointer xmlObject, bool 
 }
 
 
-void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::Pointer xmlObject, char* unit){
+static void pushValue(MetricId id, double value, double executiontime,  itk::DOMNode::Pointer xmlObject, const char* unit){
 	char val [50];
 	char exect [50];
 	sprintf(val, "%.6f", value);
@@ -237,7 +237,7 @@ void pushMessage(const char *message, const char* targtfile, const char* fixedIm
 		else{
 			dOMObject = itk::DOMNode::New();
 		}
-		char *nodename= "measurement";
+		const char *nodename= "measurement";
 		dOMObject->SetName( nodename);
 
 		AddNodeWithAttributeIfNotExists(dOMObject, "fixed-image", "filename", fixedImage);

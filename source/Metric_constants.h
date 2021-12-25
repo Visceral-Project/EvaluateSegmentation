@@ -32,10 +32,10 @@
 #include "Global.h"
 
 typedef struct MetricInfo{
-	char* metrId;
-	char* metrSymb;
-	char* metrInfo;
-	char* help;
+	const char* metrId;
+	const char* metrSymb;
+	const char* metrInfo;
+	const char* help;
 	bool similarity;
 	bool testmetric;
 } MetricInfo;
